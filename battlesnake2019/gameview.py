@@ -87,16 +87,18 @@ class GameView:
     def update_grid(self, json):
         # handle json here... 
 
-        self._snakes = json['board']['snakes']
-        self._mySnake = json['you']
-        self._food = json['board']['food']
+        if json != None and json != "":
 
-        self.boardSizeX = json['board']['width']
-        self.boardSizeY = json['board']['height']
+            self._snakes = json['board']['snakes']
+            self._mySnake = json['you']
+            self._food = json['board']['food']
 
-        self._grid = [[self.defaultSquareColor for y in range(self.boardSizeY)] for x in range(self.boardSizeX)]
+            self.boardSizeX = json['board']['width']
+            self.boardSizeY = json['board']['height']
 
-        #self.update_pps()
+            self._grid = [[self.defaultSquareColor for y in range(self.boardSizeY)] for x in range(self.boardSizeX)]
+
+            #self.update_pps()
 
     def finalize(self):
         pygame.quit()

@@ -1,127 +1,32 @@
-import gameview as gv
+import _global
 import time
-import json
+import _thread
+import server
+import gameview as gv
 
-gameView = gv.GameView()
+running = False
 
-jsonString = """
-{
-  "game": {
-    "id": "game-id-string"
-  },
-  "turn": 0,
-  "board": {
-    "height": 15,
-    "width": 25,
-    "food": [{
-      "x": 0,
-      "y": 0
-    }],
-    "snakes": 
-    [
-        {
-          "id": "123",
-          "name": "MySnakeName",
-          "health": 100,
-          "body": [
-        {
-          "x": 5,
-          "y": 6
-        },
-        {
-          "x": 5,
-          "y": 5
-        },
-        {
-          "x": 6,
-          "y": 5
-        },
-        {
-          "x": 7,
-          "y": 5
-        },
-        {
-          "x": 7,
-          "y": 8
-        }]
-        },
-        {
-          "id": "abc",
-          "name": "SnakeName",
-          "health": 27,
-          "body": [
-          {
-            "x": 2,
-            "y": 9
-          },
-          {
-            "x": 3,
-            "y": 9
-          },
-          {
-            "x": 3,
-            "y": 10
-          },
-          {
-            "x": 2,
-            "y": 10
-          },
-          {
-            "x": 1,
-            "y": 10
-          },
-          {
-            "x": 0,
-            "y": 10
-          },
-          {
-            "x": 0,
-            "y": 9
-          },
-          {
-            "x": 0,
-            "y": 8
-          },{
-            "x": 1,
-            "y": 8
-          },
-          {
-            "x": 1,
-            "y": 9
-          }]
-        }
-    ]
-  },
-  "you": {
-    "id": "123",
-    "name": "MySnakeName",
-    "health": 100,
-    "body": [{
-      "x": 5,
-      "y": 5
-    },
-    {
-      "x": 6,
-      "y": 5
-    },
-    {
-      "x": 7,
-      "y": 5
-    },
-    {
-      "x": 7,
-      "y": 8
-    }]
-  }
-}
-"""
+def Run():
+     
+    _thread.start_new_thread(RunBoard, ("Thread-Board",))
+    _thread.start_new_thread(RunServer, ("Thread-Server",))
+    return
 
-json = json.loads(jsonString)
+def RunServer(thread_name):
+    server.start('10013')
 
-gameView.update_grid(json)
+def RunBoard(thread_name):
 
-while(gameView._running):
-    gameView.update()
-    time.sleep(0.30)
+    gameView = gv.GameView()
 
-gameView.finalize()
+    while(gameView._running and running):
+        gameView.update_grid(_global.board_json_list)
+        gameView.update()
+        time.sleep(0.30)
+
+    gameView.finalize()
+
+
+if __name__ == '__main__':
+    running = True
+    Run()

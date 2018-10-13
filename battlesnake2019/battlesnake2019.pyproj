@@ -25,6 +25,18 @@
     <Compile Include="gameview.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="graph_algorithms_2018.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="server.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="snake2018.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="_global.py">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
