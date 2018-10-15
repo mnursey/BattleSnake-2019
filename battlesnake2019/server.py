@@ -3,6 +3,8 @@ import os
 import time
 import _global
 import snake2018
+import gamelogger
+
 
 @bottle.post('/start')
 def start():
@@ -15,8 +17,11 @@ def start():
     }
 
 @bottle.post('/end')
-def start():
+def end():
     data = bottle.request.json
+
+    gamelogger.log(data, 'None')
+    gamelogger.send_log(data['game']['id'], data['you']['id'], '2018_snake_2v2_v1')
 
     return {}
 
@@ -29,6 +34,9 @@ def move():
     end = time.time()
     print('Time to get AI move: ' + str((end - start) * 1000) + 'ms')
     _global.board_json_list = data
+
+    gamelogger.log(data, move)
+
     return {
         'move': move
     }

@@ -259,3 +259,5 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/engine_0.2.1_Windows_x86_64
+/engine_0.2.1_Windows_x86_64.zip
