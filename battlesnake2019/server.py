@@ -44,7 +44,7 @@ def move():
 @bottle.get('/')
 def status():
     return{
-        "<!DOCKTYPE html><html><head><title>2018</title><style>p{color:orange;}</style></head><body><p>BattleSnake 2018 by Mitchell Nursey.</p></body></html>"
+        "<!DOCKTYPE html><html><head><title>2019 Snake</title><style>p{color:orange;}</style></head><body><p>BattleSnake 2019 by Mitchell Nursey.</p></body></html>"
 }
 
 def start(port):
