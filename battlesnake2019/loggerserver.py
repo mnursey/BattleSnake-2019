@@ -16,9 +16,9 @@ def save_log():
     if not os.path.isdir(data_folder_name + '/' + collection):
         os.mkdir(data_folder_name + '/' + collection)
 
-    snake_id = data['data'][0]['you']['id']
+    text_data = json.dumps(data['data'], indent=4)
 
-    text_data = json.dumps(data['data'])
+    snake_id = data['data'][0]['input']['you']['id']
 
     file = open(data_folder_name + '/' + collection + '/' + snake_id + '.json', 'w')
     file.write(text_data)
