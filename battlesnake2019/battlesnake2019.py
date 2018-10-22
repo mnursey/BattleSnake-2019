@@ -9,9 +9,9 @@ running = False
 
 enable_snake_server = True
 enable_game_viewer  = True
-enable_log_server   = True
+enable_log_server   = False
 
-snake_server_port   = '10013'
+snake_server_port   = '10012'
 log_server_port     = '10010'
 
 def Run():

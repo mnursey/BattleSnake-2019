@@ -5,6 +5,7 @@ import _global
 import snake2018
 import gamelogger
 
+log_collection = '2v2_10by10_1f_2018snake'
 
 @bottle.post('/start')
 def start():
@@ -21,7 +22,7 @@ def end():
     data = bottle.request.json
 
     gamelogger.log(data, 'None')
-    gamelogger.send_log(data['game']['id'], data['you']['id'], '2018_snake_2v2_v1')
+    gamelogger.send_log(data['game']['id'], data['you']['id'], log_collection)
 
     return {}
 
