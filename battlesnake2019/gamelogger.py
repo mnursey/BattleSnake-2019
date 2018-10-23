@@ -28,12 +28,8 @@ def send_log(game_id, snake_id, log_collection):
 
     if game_id in game_dict:
         if snake_id in game_dict[game_id]:
-
-            # log_json = json.dumps({'collection' : log_collection, 'data' : game_dict[game_id][snake_id]}, indent=4)
-
             # send json
-
-            response = requests.post(server_addr + '/log', timeout = 0.8, json = {'collection' : log_collection, 'data' : game_dict[game_id][snake_id]})
+            response = requests.post(server_addr + '/log', timeout = 100, json = {'collection' : log_collection, 'data' : game_dict[game_id][snake_id]})
           
             del game_dict[game_id][snake_id]
 

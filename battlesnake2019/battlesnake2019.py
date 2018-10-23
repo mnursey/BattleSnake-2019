@@ -4,18 +4,21 @@ import _thread
 import server
 import gameview as gv
 import loggerserver
+import data_formatter
 
 running = False
 
 enable_snake_server = True
 enable_game_viewer  = True
-enable_log_server   = False
-
-snake_server_port   = '10012'
+enable_log_server   = True
+run_formatter_on_start = False
+snake_server_port   = '10013'
 log_server_port     = '10010'
 
 def Run():
-     
+    
+    if run_formatter_on_start:
+        data_formatter.simple_setup_test_one('./log_data/1v1_10by10_1f_2018snake')
     if enable_game_viewer:
         _thread.start_new_thread(RunBoard, ("Thread-Board",))
     if enable_snake_server:

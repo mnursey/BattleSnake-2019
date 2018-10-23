@@ -4,8 +4,11 @@ import time
 import _global
 import snake2018
 import gamelogger
+import subprocess
 
-log_collection = '2v2_10by10_1f_2018snake'
+log_collection = '1v1_10by10_1f_2018snake'
+game_server_location = 'D:\Desktop\BattleSnake\engine_0.2.1_Windows_x86_64'
+game_server_cmd = ['python', 'run.py']
 
 @bottle.post('/start')
 def start():
@@ -20,6 +23,9 @@ def start():
 @bottle.post('/end')
 def end():
     data = bottle.request.json
+
+    # run new game on game server
+    p = subprocess.run(game_server_cmd, cwd = game_server_location)
 
     gamelogger.log(data, 'None')
     gamelogger.send_log(data['game']['id'], data['you']['id'], log_collection)

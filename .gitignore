@@ -261,3 +261,5 @@ __pycache__/
 *.pyc
 /engine_0.2.1_Windows_x86_64
 /engine_0.2.1_Windows_x86_64.zip
+/battlesnake2019/formatted_data
+/battlesnake2019/log_data/1v1_10by10_1f_2018snake
