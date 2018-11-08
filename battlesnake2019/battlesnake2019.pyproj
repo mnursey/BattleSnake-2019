@@ -25,6 +25,9 @@
     <Compile Include="data_formatter.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="engine.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="gamelogger.py">
       <SubType>Code</SubType>
     </Compile>
@@ -37,10 +40,19 @@
     <Compile Include="loggerserver.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ml_trainer_torch.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="server.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="sim_game.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="snake2018.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="snake_random.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="_global.py">

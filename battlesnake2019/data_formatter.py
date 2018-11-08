@@ -1,5 +1,6 @@
 import os
 import json
+import numpy as np
 
 export_loc = 'formatted_data'
 
@@ -17,7 +18,7 @@ def simple_setup_test_one(data_loc):
 
     output = open(export_loc + '/' + test_name + '.csv', 'w')
 
-    output.write('move, food_x, food_y, mhealth, ehealth, mb0_x, mb0_y, mb1_x, mb1_y, mb2_x, mb2_y, mb3_x, mb3_y, mb4_x, mb4_y, mb5_x, mb5_y, mb6_x, mb6_y, mb7_x, mb7_y, mb8_x, mb8_y, mb9_x, mb9_y, eb0_x, eb0_y, eb1_x, eb1_y, eb2_x, eb2_y, eb3_x, eb3_y, eb4_x, eb4_y, eb5_x, eb5_y, eb6_x, eb6_y, eb7_x, eb7_y, eb8_x, eb8_y, eb9_x, eb9_y\n')
+    output.write('move_up, move_down, move_left, move_right, food_x, food_y, mhealth, ehealth, mb0_x, mb0_y, mb1_x, mb1_y, mb2_x, mb2_y, mb3_x, mb3_y, mb4_x, mb4_y, mb5_x, mb5_y, mb6_x, mb6_y, mb7_x, mb7_y, mb8_x, mb8_y, mb9_x, mb9_y, eb0_x, eb0_y, eb1_x, eb1_y, eb2_x, eb2_y, eb3_x, eb3_y, eb4_x, eb4_y, eb5_x, eb5_y, eb6_x, eb6_y, eb7_x, eb7_y, eb8_x, eb8_y, eb9_x, eb9_y\n')
 
     for file_name in file_names:
         if(file_name.endswith('.json')):
@@ -31,6 +32,20 @@ def simple_setup_test_one(data_loc):
 
                 if move is 'None':
                     continue
+
+                move_up = 0
+                move_down = 0
+                move_left = 0
+                move_right = 0
+
+                if move == 'up':
+                    move_up = 1
+                if move == 'down':
+                    move_down = 1
+                if move == 'left':
+                    move_left = 1
+                if move == 'right':
+                    move_right = 1
 
                 apple_x = turn['input']['board']['food'][0]['x'] + 1
                 apple_y = turn['input']['board']['food'][0]['y'] + 1
@@ -73,7 +88,7 @@ def simple_setup_test_one(data_loc):
                 if skip:
                     continue
 
-                out = move + ', ' + str(apple_x) + ', ' + str(apple_y) + ', ' + str(my_snake_health) + ', ' + str(enemy_snake_health)
+                out = str(move_up) + ', ' + str(move_down) + ', ' + str(move_left) + ', ' + str(move_right) + ', ' + str(apple_x) + ', ' + str(apple_y) + ', ' + str(my_snake_health) + ', ' + str(enemy_snake_health)
 
                 for item in my_snake_body:
                     out += ', ' + str(item)
@@ -88,6 +103,49 @@ def simple_setup_test_one(data_loc):
     print('Data Formatter: finished formatting data')
 
     return
+
+def simple_obj_to_format(turn):
+    apple_x = turn['board']['food'][0]['x'] + 1
+    apple_y = turn['board']['food'][0]['y'] + 1
+
+    my_snake_health = turn['you']['health']
+    enemy_snake_health = 0
+
+    my_snake_body = []
+    enemy_snake_body = []
+
+    my_id = turn['you']['id']
+
+    for i in range(10):
+        if(i < len(turn['you']['body'])):
+            my_snake_body.append(turn['you']['body'][i]['x'] + 1)
+            my_snake_body.append(turn['you']['body'][i]['y'] + 1)
+        else:
+            my_snake_body.append(0)
+            my_snake_body.append(0)
+
+    for snake in turn['board']['snakes']:
+        if snake['id'] is not my_id:
+            enemy_snake_health = snake['health']
+
+            for i in range(10):
+                if(i < len(snake['body'])):
+                    enemy_snake_body.append(snake['body'][i]['x'] + 1)
+                    enemy_snake_body.append(snake['body'][i]['y'] + 1)
+                else:
+                    enemy_snake_body.append(0)
+                    enemy_snake_body.append(0)
+            break
+
+    out = np.array([apple_x, apple_y, my_snake_health, enemy_snake_health])
+
+    for item in my_snake_body:
+        out = np.append(out, [item])
+
+    for item in enemy_snake_body:
+        out = np.append(out, [item])
+
+    return out
 
 if __name__ == '__main__':
    simple_setup_test_one('./log_data/1v1_10by10_1f_2018snake')
