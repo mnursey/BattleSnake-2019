@@ -90,7 +90,8 @@ def Run(state, moves):
                 break
 
     # gen food
-    while num_food_to_gen > 0:
+    tries = 5000
+    while num_food_to_gen > 0 and tries > 0:
         for i in range(num_food_to_gen):
             x = random.randint(0, state['board']['width'] - 1)
             y = random.randint(0, state['board']['height'] - 1)
@@ -103,9 +104,12 @@ def Run(state, moves):
                         collision = True
                         break
 
+            tries -= 1
+
             if not collision:
                 num_food_to_gen -= 1
                 state['board']['food'].append({'x' : x, 'y' : y})
+                tries = 5000
 
     # remove tail
     for snake in state['board']['snakes']:

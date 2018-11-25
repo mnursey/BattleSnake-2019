@@ -16,6 +16,9 @@ class GameView:
     defaultSquareColor = (200, 200, 200)
     defaultSnakeColor = (60, 60, 140)
     mySnakeColor = (60, 140, 60)
+    ASnakeColor = (40, 160, 40)
+    BSnakeColor = (140, 140, 60)
+    CSnakeColor = (140, 60, 60)
     myDeadSnakeColor = (140, 140, 60)
     foodColor = (220, 60, 60)
     headColorOffset = -40
@@ -67,8 +70,19 @@ class GameView:
                 if snake['health'] <= 0:
                     continue
                 snakeColor = self.defaultSnakeColor
+
                 if snake['id'] == self._mySnake['id']:
                     snakeColor = self.mySnakeColor
+
+                if snake['id'] == 'A':
+                    snakeColor = self.ASnakeColor
+
+                if snake['id'] == 'B':
+                    snakeColor = self.BSnakeColor
+
+                if snake['id'] == 'C':
+                    snakeColor = self.CSnakeColor
+
                 for body in snake['body']:
                     rect = pygame.Rect(self.boardSizeX + body['x'] * self.squareOffset + body['x'] * self.pixelPerSquare, self.boardYOffset + body['y'] * self.squareOffset + body['y'] * self.pixelPerSquare, self.pixelPerSquare, self.pixelPerSquare)
                     if prevRect is not None:

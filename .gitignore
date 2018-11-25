@@ -265,3 +265,4 @@ __pycache__/
 /battlesnake2019/log_data/1v1_10by10_1f_2018snake
 /battlesnake2019/images
 /battlesnake2019/initial_game - Copy.json
+/battlesnake2019/models/convnet

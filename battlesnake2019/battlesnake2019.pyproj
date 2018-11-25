@@ -49,6 +49,9 @@
     <Compile Include="sim_game.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="sl_trainer.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="snake2018.py">
       <SubType>Code</SubType>
     </Compile>

@@ -31,7 +31,6 @@ run_ai_trainer_on_start = False
 enable_sim_game = True
 
 def Run():
-
     if run_formatter_on_start:
         data_formatter.simple_setup_test_one(formatter_data_loc)
 
@@ -47,9 +46,9 @@ def Run():
     if enable_log_server:
         _thread.start_new_thread(RunLogServer, ("Thread-Log-Server",))
 
-    if enable_sim_game:
-        _thread.start_new_thread(RunSimGame, ("Thread-Sim-Game",))
-
+    #if enable_sim_game:
+        #_thread.start_new_thread(RunSimGame, ("Thread-Sim-Game",))
+    RunSimGame("Main")
     return
 
 def RunServer(thread_name):
