@@ -110,7 +110,7 @@ class ConvNet(nn.Module):
         return nn.Conv2d(in_channels, out_channels, kernel_size = 3, stride = 1, padding = 1, bias = False)
 
 class ConvAI():
-    def __init__(self, board_width, board_height):
+    def __init__(self, board_width, board_height, batch_size):
         super(ConvAI, self).__init__()
         
         self.cuda0 = torch.device('cuda:0')
@@ -118,6 +118,8 @@ class ConvAI():
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr = self.net.learning_rate)
 
         self.episode = 0
+
+        self.batch_size = batch_size
 
         self.random_chars = random.choice(string.ascii_letters)
         self.random_chars += random.choice(string.ascii_letters)
@@ -226,7 +228,7 @@ class ConvAI():
         self.net.ep_reward_episode = []
         self.net.ep_policy_history = []
 
-        self.episode += 1
+        self.episode += self.batch_size
 
         if self.episode % 100 == 0:
             episode_avg = self.net.loss_history

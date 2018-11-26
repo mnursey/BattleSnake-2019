@@ -15,11 +15,6 @@ enable_b_snake_assistance = False
 
 def run():
    
-    testing = False
-    pg_conv_agent = ml_trainer_torch.ConvAI(5, 5)
-    #pg_conv_agent.load()
-    original_state = load_initial_state()
-   
     win = 0
     loss = 0
     bad_loss = 0
@@ -28,7 +23,12 @@ def run():
     game_number = 0
     sum_of_game_length = 0
     max_turns = 1000
-    batch_size = 1
+    batch_size = 500
+
+    testing = False
+    pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
+    #pg_conv_agent.load()
+    original_state = load_initial_state()
 
     graphs_plots_r = [[0],[0]]
     graphs_plots_b = [[0],[500]]
