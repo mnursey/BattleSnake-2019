@@ -16,23 +16,25 @@ enable_b_snake_assistance = False
 def run():
    
     testing = False
-    pg_conv_agent = ml_trainer_torch.ConvAI(7, 7)
+    pg_conv_agent = ml_trainer_torch.ConvAI(5, 5)
     #pg_conv_agent.load()
     original_state = load_initial_state()
    
     win = 0
     loss = 0
     bad_loss = 0
+    hunger_loss = 0
     sum_of_scores = 0
     game_number = 0
     sum_of_game_length = 0
     max_turns = 1000
-    batch_size = 10
+    batch_size = 1
 
     graphs_plots_r = [[0],[0]]
     graphs_plots_b = [[0],[500]]
     graphs_plots_g = [[0],[0]]
     graphs_plots_y = [[0],[0]]
+    graphs_plots_p = [[0],[0]]
 
     graph_update = 500
 
@@ -85,6 +87,8 @@ def run():
         while len(state['board']['snakes']) > 1:
             _global.board_json_list = state
 
+            zero_health = False
+
             moves = []
             ai_surrounding_space = []
             grid = snake_random.generate_grid(state)
@@ -94,6 +98,8 @@ def run():
                     my_move = pg_conv_agent.run_ai(state, testing)
                     moves.append((my_move, 'A'))
                     ai_surrounding_space = snake_random.get_free_moves(state, grid)
+                    if snake['health'] <= 1:
+                        zero_health = True
                     if enable_b_snake_assistance:
                         b_snake_move = snake2018.run_ai(state)
                 if snake['id'] == 'B':
@@ -127,8 +133,10 @@ def run():
                     
             if not found or state['turn'] > max_turns:
                 loss += 1
-                if len(ai_surrounding_space) > 0:
+                if len(ai_surrounding_space) > 0 and not zero_health:
                     bad_loss += 1
+                if zero_health:
+                    hunger_loss += 1
                 reward = -1.0
                 done = True
 
@@ -158,10 +166,13 @@ def run():
                 graphs_plots_g[1].append(sum_of_scores / float(graph_update))
                 graphs_plots_y[0].append(game_number / graph_update)
                 graphs_plots_y[1].append(sum_of_game_length / float(graph_update))
+                graphs_plots_p[0].append(game_number / graph_update)
+                graphs_plots_p[1].append(hunger_loss)
                 plt.plot(graphs_plots_r[0],graphs_plots_r[1], 'r-')
                 plt.plot(graphs_plots_b[0],graphs_plots_b[1], 'b-')
                 plt.plot(graphs_plots_g[0],graphs_plots_g[1], 'g-')
                 plt.plot(graphs_plots_y[0],graphs_plots_y[1], 'y-')
+                plt.plot(graphs_plots_p[0],graphs_plots_p[1], '-', color = 'purple')
 
                 plt.draw()
                 plt.pause(0.000001)
@@ -169,6 +180,7 @@ def run():
             loss = 0
             win = 0
             bad_loss = 0
+            hunger_loss = 0
             sum_of_scores = 0
             sum_of_game_length = 0
 

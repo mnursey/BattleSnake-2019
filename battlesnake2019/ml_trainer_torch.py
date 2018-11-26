@@ -228,7 +228,7 @@ class ConvAI():
         self.net.ep_reward_episode = []
         self.net.ep_policy_history = []
 
-        self.episode += 10
+        self.episode += 1
 
         if self.episode % 100 == 0:
             episode_avg = self.net.loss_history

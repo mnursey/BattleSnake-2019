@@ -4,8 +4,8 @@
 	},
 	"turn": 0,
 	"board": {
-		"height": 7,
-		"width": 7,
+		"height": 5,
+		"width": 5,
 		"food": [
 			{
 				"x": 0,
