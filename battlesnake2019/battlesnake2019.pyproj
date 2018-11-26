@@ -43,6 +43,9 @@
     <Compile Include="minimax.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ml_eval_snake.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ml_trainer_torch.py">
       <SubType>Code</SubType>
     </Compile>

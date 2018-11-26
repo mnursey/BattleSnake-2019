@@ -163,7 +163,7 @@ def run():
                 graphs_plots_b[0].append(game_number / graph_update)
                 graphs_plots_b[1].append(bad_loss)
                 graphs_plots_g[0].append(game_number / graph_update)
-                graphs_plots_g[1].append(sum_of_scores / float(graph_update))
+                graphs_plots_g[1].append(sum_of_scores * 100 / float(graph_update))
                 graphs_plots_y[0].append(game_number / graph_update)
                 graphs_plots_y[1].append(sum_of_game_length / float(graph_update))
                 graphs_plots_p[0].append(game_number / graph_update)

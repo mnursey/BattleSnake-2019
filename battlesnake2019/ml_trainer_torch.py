@@ -185,13 +185,11 @@ class ConvAI():
     def update_policy(self):
         R = 0
         rewards = collections.deque()
-        sum_of_rewards = 0
 
         # Discount future rewards back to the present using gamma
         for ep_rewards in self.net.ep_reward_episode[::-1]:
             R = 0
             for r in ep_rewards[::-1]:
-                sum_of_rewards += r
                 R = r + self.net.gamma * R
                 rewards.appendleft(R)
 
@@ -239,7 +237,7 @@ class ConvAI():
         if self.episode % 5000 == 0:
             self.save()
 
-        return sum_of_rewards
+        return loss.item()
 
     def load(self):
         saved_state = torch.load('./models/convnet/qDTOS95000.pth')
