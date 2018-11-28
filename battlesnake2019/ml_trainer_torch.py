@@ -60,9 +60,9 @@ class ConvNet(nn.Module):
         self.bn2 = nn.BatchNorm2d(256)
         self.act2 = nn.ELU()
 
-        self.conv3 = nn.Conv2d(256, 256, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        self.bn3 = nn.BatchNorm2d(256)
-        self.act3 = nn.ELU()
+        #self.conv3 = nn.Conv2d(256, 256, kernel_size = 3, stride = 1, padding = 1, bias = False)
+        #self.bn3 = nn.BatchNorm2d(256)
+        #self.act3 = nn.ELU()
 
         self.fc1 = nn.Linear(256 * board_height * board_width, 256) 
         self.act4 = nn.ELU()
@@ -70,7 +70,7 @@ class ConvNet(nn.Module):
         self.output_layer = nn.Linear(256, 4)
 
         # Hyperparameters
-        self.gamma = 0.99
+        self.gamma = 0.45
         self.learning_rate = 0.0001
 
         # Episode policy and reward history 
@@ -92,9 +92,9 @@ class ConvNet(nn.Module):
         x = self.bn2(x)
         x = self.act2(x)
 
-        x = self.conv3(x)
-        x = self.bn3(x)
-        x = self.act3(x)
+        #x = self.conv3(x)
+        #x = self.bn3(x)
+        #x = self.act3(x)
 
         x = x.view(x.size(0), -1)
 
@@ -180,8 +180,8 @@ class ConvAI():
         return
 
     def new_episode(self):
-        self.net.ep_policy_history.append([]);
-        self.net.ep_reward_episode.append([]);
+        self.net.ep_policy_history.append([])
+        self.net.ep_reward_episode.append([])
         return
 
     def update_policy(self):
@@ -241,8 +241,8 @@ class ConvAI():
 
         return loss.item()
 
-    def load(self):
-        saved_state = torch.load('./models/convnet/qDTOS95000.pth')
+    def load(self, version):
+        saved_state = torch.load('./models/convnet/' + version + '.pth')
         self.net.load_state_dict(saved_state['state_dict'])
         optimizer = torch.optim.Adam(self.net.parameters(), lr=self.net.learning_rate)
         optimizer.load_state_dict(saved_state['optimizer'])

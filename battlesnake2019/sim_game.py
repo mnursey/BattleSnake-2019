@@ -11,7 +11,6 @@ import random
 import matplotlib.pyplot as plt
 
 enable_graph = True
-enable_b_snake_assistance = False
 
 def run():
    
@@ -27,7 +26,7 @@ def run():
 
     testing = False
     pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
-    #pg_conv_agent.load()
+    #pg_conv_agent.load('FBrbx385000')
     original_state = load_initial_state()
 
     graphs_plots_r = [[0],[0]]
@@ -84,7 +83,7 @@ def run():
                     food['y'] = y
                     break
 
-        while len(state['board']['snakes']) > 1:
+        while len(state['board']['snakes']) > 1 and not done:
             _global.board_json_list = state
 
             zero_health = False
@@ -100,11 +99,9 @@ def run():
                     ai_surrounding_space = snake_random.get_free_moves(state, grid)
                     if snake['health'] <= 1:
                         zero_health = True
-                    if enable_b_snake_assistance:
-                        b_snake_move = snake2018.run_ai(state)
                 if snake['id'] == 'B':
                     state['you'] = snake
-                    moves.append((snake_random.run_corners_ai(state, grid), 'B'))
+                    moves.append((snake_random.run_ai(state, grid), 'B'))
 
             state = engine.Run(state, moves) 
 
@@ -124,13 +121,11 @@ def run():
             if ate:
                 reward =  0.0
 
-            if enable_b_snake_assistance and b_snake_move == my_move:
-                reward += 25.0
-
             if found and not enemy_found:
                 win += 1
                 reward = 1.0
-                    
+                   
+                
             if not found or state['turn'] > max_turns:
                 loss += 1
                 if len(ai_surrounding_space) > 0 and not zero_health:
@@ -141,9 +136,6 @@ def run():
                 done = True
 
             pg_conv_agent.set_reward(reward)
-
-            if done:
-                break
 
         if game_number % batch_size == 0 and not testing:
             sum_of_scores += pg_conv_agent.update_policy()
