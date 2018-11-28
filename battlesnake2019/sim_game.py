@@ -101,7 +101,7 @@ def run():
                         zero_health = True
                 if snake['id'] == 'B':
                     state['you'] = snake
-                    moves.append((snake_random.run_ai(state, grid), 'B'))
+                    moves.append((snake_random.run_corners_ai(state, grid), 'B'))
 
             state = engine.Run(state, moves) 
 

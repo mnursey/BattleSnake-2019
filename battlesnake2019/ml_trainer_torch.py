@@ -32,13 +32,13 @@ def json_obj_to_conv_input(json_obj):
 
     for snake in json_obj['board']['snakes']:
         if snake['id'] is not my_id:
-            en_head_plane[snake['body'][0]['y']][snake['body'][0]['x']] = float(snake['health']) / 100.0
+            en_head_plane[snake['body'][0]['y']][snake['body'][0]['x']] = 1 #float(snake['health']) / 100.0
             for body in snake['body']:
                 en_body_plane[body['y']][body['x']] = 1
             en_tail_plane[snake['body'][-1]['y']][snake['body'][-1]['x']] = 1
 
         else:
-            my_head_plane[snake['body'][0]['y']][snake['body'][0]['x']] = float(snake['health']) / 100.0
+            my_head_plane[snake['body'][0]['y']][snake['body'][0]['x']] = 1 #float(snake['health']) / 100.0
             for body in snake['body']:
                 my_body_plane[body['y']][body['x']] = 1
             my_tail_plane[snake['body'][-1]['y']][snake['body'][-1]['x']] = 1
@@ -47,10 +47,15 @@ def json_obj_to_conv_input(json_obj):
     return conv_input
 
 class ConvNet(nn.Module):
-    def __init__(self, board_width, board_height):
+    def __init__(self, board_width, board_height, training = True, sigma = 0.1):
         super(ConvNet, self).__init__()
 
         cuda0 = torch.device('cuda:0')
+
+        self.training = training
+        self.sigma = sigma
+        self.noise = torch.tensor(0).to(cuda0).float()
+
 
         self.conv1 = nn.Conv2d(7, 128, kernel_size = 3, stride = 1, padding = 1, bias = False)
         self.bn1 = nn.BatchNorm2d(128)
@@ -60,9 +65,9 @@ class ConvNet(nn.Module):
         self.bn2 = nn.BatchNorm2d(256)
         self.act2 = nn.ELU()
 
-        #self.conv3 = nn.Conv2d(256, 256, kernel_size = 3, stride = 1, padding = 1, bias = False)
-        #self.bn3 = nn.BatchNorm2d(256)
-        #self.act3 = nn.ELU()
+        self.conv3 = nn.Conv2d(256, 256, kernel_size = 3, stride = 1, padding = 1, bias = False)
+        self.bn3 = nn.BatchNorm2d(256)
+        self.act3 = nn.ELU()
 
         self.fc1 = nn.Linear(256 * board_height * board_width, 256) 
         self.act4 = nn.ELU()
@@ -70,7 +75,7 @@ class ConvNet(nn.Module):
         self.output_layer = nn.Linear(256, 4)
 
         # Hyperparameters
-        self.gamma = 0.45
+        self.gamma = 0.99
         self.learning_rate = 0.0001
 
         # Episode policy and reward history 
@@ -83,7 +88,10 @@ class ConvNet(nn.Module):
         return
 
     def forward(self, x):
-
+        if self.training and self.sigma != 0:
+            scale = self.sigma * x.detach()
+            sampled_noise = self.noise.repeat(*x.size()).normal_() * scale
+            x = x + sampled_noise
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.act1(x)
@@ -92,9 +100,9 @@ class ConvNet(nn.Module):
         x = self.bn2(x)
         x = self.act2(x)
 
-        #x = self.conv3(x)
-        #x = self.bn3(x)
-        #x = self.act3(x)
+        x = self.conv3(x)
+        x = self.bn3(x)
+        x = self.act3(x)
 
         x = x.view(x.size(0), -1)
 
@@ -220,7 +228,7 @@ class ConvAI():
         #print(loss)
         # Update network weights
         loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.net.parameters(), 1.0)
+        #torch.nn.utils.clip_grad_norm_(self.net.parameters(), 1.0)
         self.optimizer.step()
 
         # Save and inialize episode history counters

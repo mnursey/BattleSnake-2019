@@ -159,5 +159,6 @@ def run_corners_ai(state, grid = None):
 
     return move
 
-def run_dumb_ai(state, grid = None):
+def run_agro_ai(state, grid = None):
+
     return
