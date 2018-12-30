@@ -122,8 +122,10 @@ def run_corners_ai(state, grid = None):
     prev_closest = 999
     c = 0
     for i, corner in enumerate(corners):
-        head_dis = get_distance(you['body'][0]['x'], you['body'][0]['y'], corner[0], corner[1])
-        tail_dis = get_distance(you['body'][-1]['x'], you['body'][-1]['y'], corner[0], corner[1])
+        head_dis = abs(you['body'][0]['x'] - corner[0]) + abs(you['body'][0]['y'] - corner[1])
+        #head_dis = get_distance(you['body'][0]['x'], you['body'][0]['y'], corner[0], corner[1])
+        tail_dis = abs(you['body'][-1]['x'] - corner[0]) + abs(you['body'][-1]['y'] - corner[1])
+        #tail_dis = get_distance(you['body'][-1]['x'], you['body'][-1]['y'], corner[0], corner[1])
 
         if tail_dis < head_dis or head_dis == 0:
             continue
