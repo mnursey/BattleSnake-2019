@@ -1,4 +1,4 @@
-import os
+"""import os
 from sklearn.model_selection import train_test_split
 from math import radians
 import numpy as np
@@ -272,4 +272,4 @@ class ConvAI():
         return
 
 if __name__ == '__main__':
-   run()
+   run()"""

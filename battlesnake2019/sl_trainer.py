@@ -1,4 +1,4 @@
-import os
+"""import os
 from sklearn.model_selection import train_test_split
 from math import radians
 import numpy as np
@@ -245,4 +245,4 @@ class ModelRunner():
         out = self.net(model_input)
         out = torch.max(out, dim = 0, keepdim = True)[1]
         # print('Trainer: model output - ' + str(out))
-        return out
+        return out"""
