@@ -159,6 +159,63 @@ def run_corners_ai(state, grid = None):
 
     return move
 
-def run_agro_ai(state, grid = None):
+def run_food_ai(state, grid = None):
 
-    return
+    if grid is None:
+        grid = generate_grid(state)
+
+    you = state['you']
+
+    adj_spaces = get_adjacent_spaces(state, grid)
+    
+    grid_width = state['board']['width']
+    grid_height = state['board']['height']
+
+    goals = []
+
+    for food in state['board']['food']:
+        goals.append([food['x'], food['y']])
+
+    move = 'up'
+
+    # get closest goal
+    prev_closest = 999
+    c = 0
+    for i, g in enumerate(goals):
+        head_dis = get_distance(you['body'][0]['x'], you['body'][0]['y'], g[0], g[1])
+
+        if head_dis == 0:
+            continue
+        if head_dis < prev_closest:
+            prev_closest = head_dis
+            c = i
+    
+    if len(goals) > 0:
+        move = move_towards(you['body'][0]['x'], you['body'][0]['y'], goals[c][0], goals[c][1])
+
+    make_backup_move = False
+
+    if move == 'up':
+        if adj_spaces[0] in OBSTACLES:
+            make_backup_move = True
+
+    if move == 'down':
+        if adj_spaces[1] in OBSTACLES:
+            make_backup_move = True
+
+    if move == 'left':
+        if adj_spaces[2] in OBSTACLES:
+            make_backup_move = True
+
+    if move == 'right':
+        if adj_spaces[3] in OBSTACLES:
+            make_backup_move = True
+
+    if make_backup_move:
+        m = ['up', 'down', 'left', 'right']
+        for i, adj in enumerate(adj_spaces):
+            if adj not in OBSTACLES:
+                move = m[i]
+                break
+
+    return move

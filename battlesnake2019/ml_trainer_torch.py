@@ -61,7 +61,7 @@ class ConvNet(nn.Module):
         self.bn1 = nn.BatchNorm2d(128)
         self.act1 = nn.ELU()
 
-        self.conv2 = nn.Conv2d(128, 256, kernel_size = 5, stride = 1, padding = 2, bias = False)
+        self.conv2 = nn.Conv2d(128, 256, kernel_size = 3, stride = 1, padding = 1, bias = False)
         self.bn2 = nn.BatchNorm2d(256)
         self.act2 = nn.ELU()
 
@@ -88,10 +88,10 @@ class ConvNet(nn.Module):
         return
 
     def forward(self, x):
-        if self.training and self.sigma != 0:
-            scale = self.sigma * x.detach()
-            sampled_noise = self.noise.repeat(*x.size()).normal_() * scale
-            x = x + sampled_noise
+        #if self.training and self.sigma != 0:
+         #   scale = self.sigma * x.detach()
+         #   sampled_noise = self.noise.repeat(*x.size()).normal_() * scale
+         #   x = x + sampled_noise
         x = self.conv1(x)
         x = self.bn1(x)
         x = self.act1(x)
