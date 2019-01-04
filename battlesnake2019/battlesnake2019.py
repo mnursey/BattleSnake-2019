@@ -10,6 +10,7 @@ import engine
 import json
 import sim_game
 import ml_trainer_torch
+import multiprocessing
 
 running = False
 
@@ -47,7 +48,8 @@ def Run():
         _thread.start_new_thread(RunLogServer, ("Thread-Log-Server",))
 
     #if enable_sim_game:
-        #_thread.start_new_thread(RunSimGame, ("Thread-Sim-Game",))
+    #    _thread.start_new_thread(RunSimGame, ("Thread-Sim-Game",))
+
     RunSimGame("Main")
     return
 
@@ -69,7 +71,14 @@ def RunLogServer(thread_name):
     loggerserver.start(log_server_port)
 
 def RunSimGame(thread_name):
+    t0 = time.clock()
     sim_game.run()
+    t1 = time.clock()
+    total = t1-t0
+    print("Finished 10000 games in "  + str(total * 1000) + "ms")
+    print("ms per game " + str(total * 1000 / 10000))
+    print("game per ms " + str(10000 / (total * 1000)))
+
 
 if __name__ == '__main__':
     running = True

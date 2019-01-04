@@ -9,11 +9,13 @@ import ml_trainer_torch
 import copy
 import random
 import matplotlib.pyplot as plt
+import sage_serpent
+import pickle
 
-enable_graph = True
+enable_graph = False
 
 def run():
-   
+  
     win = 0
     loss = 0
     bad_loss = 0
@@ -25,7 +27,7 @@ def run():
     batch_size = 500
 
     testing = False
-    pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
+    #pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
     #pg_conv_agent.load('FBrbx385000')
     original_state = load_initial_state()
 
@@ -47,16 +49,16 @@ def run():
         plt.draw()
         plt.pause(0.000001)
 
-    while True:
+    while game_number < 10000:
 
         game_number += 1
 
         # new episode
-        pg_conv_agent.new_episode()
+        #pg_conv_agent.new_episode()
 
         done = False
         # copy original state
-        state = copy.deepcopy(original_state)
+        state = pickle.loads(pickle.dumps(original_state, -1))
 
         positions = []
 
@@ -83,6 +85,8 @@ def run():
                     food['y'] = y
                     break
 
+        #sage_serpent.run_ai(1, 1, 5, 5, state)
+      
         while len(state['board']['snakes']) > 1 and not done:
             _global.board_json_list = state
 
@@ -94,7 +98,9 @@ def run():
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
                     state['you'] = snake
-                    my_move = pg_conv_agent.run_ai(state, testing)
+                    #my_move = pg_conv_agent.run_ai(state, testing)
+                    my_move = snake_random.run_ai(state, grid)
+
                     moves.append((my_move, 'A'))
                     ai_surrounding_space = snake_random.get_free_moves(state, grid)
                     if snake['health'] <= 1:
@@ -135,10 +141,10 @@ def run():
                 reward = -1.0
                 done = True
 
-            pg_conv_agent.set_reward(reward)
+            #pg_conv_agent.set_reward(reward)
 
-        if game_number % batch_size == 0 and not testing:
-            sum_of_scores += pg_conv_agent.update_policy()
+        #if game_number % batch_size == 0 and not testing:
+        #    sum_of_scores += pg_conv_agent.update_policy()
 
         sum_of_game_length += state['turn']
 
