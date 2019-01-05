@@ -98,7 +98,7 @@ def run():
                     state['you'] = snake
                     #my_move = pg_conv_agent.run_ai(state, testing)
                     t0 = time.clock()
-                    my_move = sage_serpent.run_ai(1, 10, 6, 200, state)
+                    my_move = sage_serpent.run_ai(1, 10, 5, 225, state)
                     t1 = time.clock()
                     total = t1-t0
                     #print("sage: " + str(total * 1000) + "ms")

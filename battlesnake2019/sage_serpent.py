@@ -7,12 +7,12 @@ import _global
 gs = 0
 
 # one in n chance of mutation
-mutation_chance = 5000
+mutation_chance = 10000
 
 # heuristic hyperparameter
 h = {
-    'dead' : 5,
-    'alive' : 100,
+    'dead' : 50,
+    'alive' : 500,
     'last_alive': 100
 }
 
