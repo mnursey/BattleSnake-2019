@@ -50,7 +50,6 @@ def run():
         plt.pause(0.000001)
 
     while game_number < 10000:
-
         game_number += 1
 
         # new episode
@@ -84,10 +83,10 @@ def run():
                     food['x'] = x
                     food['y'] = y
                     break
-
-        #sage_serpent.run_ai(1, 1, 5, 5, state)
       
         while len(state['board']['snakes']) > 1 and not done:
+            time.sleep(0.5)
+            print('viewing game')
             _global.board_json_list = state
 
             zero_health = False
@@ -99,7 +98,11 @@ def run():
                 if snake['id'] == 'A':
                     state['you'] = snake
                     #my_move = pg_conv_agent.run_ai(state, testing)
-                    my_move = snake_random.run_ai(state, grid)
+                    t0 = time.clock()
+                    my_move = sage_serpent.run_ai(1, 10, 5, 100, state)
+                    t1 = time.clock()
+                    total = t1-t0
+                    print("sage: " + str(total * 1000) + "ms")
 
                     moves.append((my_move, 'A'))
                     ai_surrounding_space = snake_random.get_free_moves(state, grid)

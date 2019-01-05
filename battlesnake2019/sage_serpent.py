@@ -1,8 +1,22 @@
 import random
 import copy
 import pickle
+import engine
+import _global
+
+gs = 0
+
+# heuristic hyperparameter
+h = {
+    'dead' : 5,
+    'alive' : 100,
+    'last_alive': 100
+}
+
 
 def run_ai(K, I, N, G, state):
+    global gs
+    gs = 0
     preds = {}
 
     for snake in state['board']['snakes']:
@@ -17,18 +31,60 @@ def run_ai(K, I, N, G, state):
         ratings = {}
         for snake in state['board']['snakes']:
             ratings[snake['id']] = []
-            for s in preds[snake['id']]:
+            for s in range(len(preds[snake['id']])):
                 temp_state = pickle.loads(pickle.dumps(state, -1))
                 temp_state = simulate(temp_state, s, snake['id'], preds)
-                ratings[snake['id']].append(rate(temp_state, snake['id']))
+                ratings[snake['id']].append(rate(temp_state, state, snake['id']))
         improve_preds(preds, ratings)
-    return
+
+    print(gs)
+
+    return preds[state['you']['id']][0][0]
 
 def simulate(state, s, id, preds):
-    return
+    global gs
+    gs += 1
+    for i in range(len(preds[id][s])):
+        # add moves
+        moves = []
+        #print('viewing sim game')
+        for snake in state['board']['snakes']:
+            if snake['id'] == id:
+                moves.append((preds[id][s][i], id))
+                #print(preds[id][s])
+            else:
+                moves.append((preds[snake['id']][0][i], snake['id']))
+                #print(preds[snake['id']][0])
+        
+        # sim moves
+        if len(moves) > 0:
+            state = engine.Run(state, moves) 
+            #_global.board_json_list = state
+        else:
+            break
+    # return final state
 
-def rate(state, id):
-    return 25
+    return state
+
+def rate(state, prev_state, id):
+    score = 0
+
+    # dead or alive
+    found = False
+    for snake in state['board']['snakes']:
+        if snake['id'] == id:
+            found = True
+            break
+
+    if found == True:
+        score += h['alive']
+
+        if len(state['board']['snakes']):
+            score += h['last_alive']
+    else:
+        score += h['dead']
+
+    return score
 
 def chase_tail(state, grid):
     return
@@ -70,11 +126,14 @@ def improve_preds(preds, ratings):
                     child.append(parent_b[l])
 
             children.append(child)
+
         preds[snake_preds] = children
 
     return
 
 function_lookup = [
-   'chase_tail',
-   'get_food'
+   'up',
+   'down',
+   'left',
+   'right'
    ]
