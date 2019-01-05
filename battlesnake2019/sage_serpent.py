@@ -6,6 +6,9 @@ import _global
 
 gs = 0
 
+# one in n chance of mutation
+mutation_chance = 5000
+
 # heuristic hyperparameter
 h = {
     'dead' : 5,
@@ -37,9 +40,25 @@ def run_ai(K, I, N, G, state):
                 ratings[snake['id']].append(rate(temp_state, state, snake['id']))
         improve_preds(preds, ratings)
 
-    print(gs)
+    # find best move
+    ratings = {}
+    for snake in state['board']['snakes']:
+        ratings[snake['id']] = []
+        for s in range(len(preds[snake['id']])):
+            temp_state = pickle.loads(pickle.dumps(state, -1))
+            temp_state = simulate(temp_state, s, snake['id'], preds)
+            ratings[snake['id']].append(rate(temp_state, state, snake['id']))
 
-    return preds[state['you']['id']][0][0]
+    best = 0
+    best_index = 0
+    for _, rating in enumerate(ratings[state['you']['id']]):
+        if best < rating:
+            best = rating
+            best_index = _
+
+    #print(gs)
+
+    return preds[state['you']['id']][best_index][0]
 
 def simulate(state, s, id, preds):
     global gs
@@ -120,10 +139,14 @@ def improve_preds(preds, ratings):
             # create child
             child = []
             for l in range(len(parent_a)):
-                if random.randint(0, 1) == 0:
-                    child.append(parent_a[l])
+
+                if random.randint(1, mutation_chance) == 1:
+                    child.append(random.randint(0, len(function_lookup) - 1))
                 else:
-                    child.append(parent_b[l])
+                    if random.randint(0, 1) == 0:
+                        child.append(parent_a[l])
+                    else:
+                        child.append(parent_b[l])
 
             children.append(child)
 

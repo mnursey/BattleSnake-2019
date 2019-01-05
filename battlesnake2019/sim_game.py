@@ -37,7 +37,7 @@ def run():
     graphs_plots_y = [[0],[0]]
     graphs_plots_p = [[0],[0]]
 
-    graph_update = 500
+    graph_update = 5
 
     if enable_graph:
         plt.ylabel('Wins over ' + str(graph_update) + ' games')
@@ -85,8 +85,7 @@ def run():
                     break
       
         while len(state['board']['snakes']) > 1 and not done:
-            time.sleep(0.5)
-            print('viewing game')
+            #time.sleep(0.5)
             _global.board_json_list = state
 
             zero_health = False
@@ -99,10 +98,10 @@ def run():
                     state['you'] = snake
                     #my_move = pg_conv_agent.run_ai(state, testing)
                     t0 = time.clock()
-                    my_move = sage_serpent.run_ai(1, 10, 5, 100, state)
+                    my_move = sage_serpent.run_ai(1, 10, 6, 200, state)
                     t1 = time.clock()
                     total = t1-t0
-                    print("sage: " + str(total * 1000) + "ms")
+                    #print("sage: " + str(total * 1000) + "ms")
 
                     moves.append((my_move, 'A'))
                     ai_surrounding_space = snake_random.get_free_moves(state, grid)
@@ -110,7 +109,7 @@ def run():
                         zero_health = True
                 if snake['id'] == 'B':
                     state['you'] = snake
-                    moves.append((snake_random.run_corners_ai(state, grid), 'B'))
+                    moves.append((snake2018.run_ai(state), 'B'))
 
             state = engine.Run(state, moves) 
 
@@ -131,12 +130,14 @@ def run():
                 reward =  0.0
 
             if found and not enemy_found:
+                print('win')
                 win += 1
                 reward = 1.0
                    
                 
             if not found or state['turn'] > max_turns:
                 loss += 1
+                print('loss')
                 if len(ai_surrounding_space) > 0 and not zero_health:
                     bad_loss += 1
                 if zero_health:
@@ -158,7 +159,7 @@ def run():
 
             # Update Graph
             if enable_graph:
-                plt.axis([0, game_number / graph_update + game_number / graph_update * 0.1, -150, graph_update])
+                plt.axis([0, game_number / graph_update + game_number / graph_update * 0.1, -5, graph_update])
                 graphs_plots_r[0].append(game_number / graph_update)
                 graphs_plots_r[1].append(win)
                 graphs_plots_b[0].append(game_number / graph_update)
@@ -178,12 +179,12 @@ def run():
                 plt.draw()
                 plt.pause(0.000001)
 
-            loss = 0
+            '''loss = 0
             win = 0
             bad_loss = 0
             hunger_loss = 0
             sum_of_scores = 0
-            sum_of_game_length = 0
+            sum_of_game_length = 0'''
 
     return
 
