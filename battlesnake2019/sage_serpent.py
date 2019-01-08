@@ -3,18 +3,25 @@ import copy
 import pickle
 import engine
 import _global
+import snake_random
 
 gs = 0
 
 # one in n chance of mutation
-mutation_chance = 10000
+mutation_chance = 100 
 
-# heuristic hyperparameter
+# heuristic hyperparameters
 h = {
-    'dead' : 50,
-    'alive' : 500,
-    'last_alive': 100
+    'dead' : 10,
+    'alive' : 100,
+    'last_alive': 1500,
+    'turn_alive': 25,
+    'full' : 200,
+    'not_next_to_wall' : 25,
+    'points_for_free_space': 75
 }
+
+print(h)
 
 
 def run_ai(K, I, N, G, state):
@@ -22,7 +29,12 @@ def run_ai(K, I, N, G, state):
     gs = 0
     preds = {}
 
+    state['stats'] = {}
+
     for snake in state['board']['snakes']:
+
+        state['stats'][snake['id']] = {'turns_alive': 0}
+
         preds[snake['id']] = []
         for g in range(G):
             sequence = []
@@ -63,6 +75,9 @@ def run_ai(K, I, N, G, state):
 def simulate(state, s, id, preds):
     global gs
     gs += 1
+
+    en_seq = 0
+
     for i in range(len(preds[id][s])):
         # add moves
         moves = []
@@ -72,13 +87,16 @@ def simulate(state, s, id, preds):
                 moves.append((preds[id][s][i], id))
                 #print(preds[id][s])
             else:
-                moves.append((preds[snake['id']][0][i], snake['id']))
+                moves.append((preds[snake['id']][en_seq][i], snake['id']))
                 #print(preds[snake['id']][0])
         
         # sim moves
-        if len(moves) > 0:
+        if len(moves) > 1:
             state = engine.Run(state, moves) 
             #_global.board_json_list = state
+
+            for snake in state['board']['snakes']:
+                state['stats'][snake['id']]['turns_alive'] += 1
         else:
             break
     # return final state
@@ -88,19 +106,32 @@ def simulate(state, s, id, preds):
 def rate(state, prev_state, id):
     score = 0
 
+    #turns alive
+    score += h['turn_alive'] * state['stats'][id]['turns_alive']
+    grid = None
     # dead or alive
     found = False
     for snake in state['board']['snakes']:
         if snake['id'] == id:
             found = True
+            if snake['health'] > 20:
+                score += h['full']
+
+            score += h['alive']
+            if len(state['board']['snakes']) == 1:
+                score += h['last_alive']
+
+            head = snake['body'][0]
+            if head['x'] != 0 and head['y'] != 0 and head['x'] != state['board']['width'] - 1 and head['y'] != state['board']['height'] - 1:
+                score += h['not_next_to_wall']
+            
+            grid = snake_random.generate_grid(state)
+            state['you'] = snake
+            adj = snake_random.get_free_moves(state, grid)
+            score += len(adj) * h['points_for_free_space']
             break
 
-    if found == True:
-        score += h['alive']
-
-        if len(state['board']['snakes']):
-            score += h['last_alive']
-    else:
+    if not found:
         score += h['dead']
 
     return score

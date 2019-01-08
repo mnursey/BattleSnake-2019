@@ -14,6 +14,12 @@ import pickle
 
 enable_graph = False
 
+I = 10
+N = 6
+G = 40
+
+print("I:{} N:{} G:{}".format(I, N, G))
+
 def run():
   
     win = 0
@@ -49,7 +55,7 @@ def run():
         plt.draw()
         plt.pause(0.000001)
 
-    while game_number < 10000:
+    while game_number < 100:
         game_number += 1
 
         # new episode
@@ -59,10 +65,10 @@ def run():
         # copy original state
         state = pickle.loads(pickle.dumps(original_state, -1))
 
-        positions = []
+        positions = [(1,1), (5,5)]
 
         # position snakes randomly
-        for snake in state['board']['snakes']:
+        '''for snake in state['board']['snakes']:
             while True:
                 x = random.randint(0, state['board']['width'] - 1)
                 y = random.randint(0, state['board']['height'] - 1)
@@ -71,7 +77,7 @@ def run():
                     for body in snake['body']:
                         body['x'] = x
                         body['y'] = y
-                    break
+                    break'''
 
         # position food randomly
         for food in state['board']['food']:
@@ -86,7 +92,6 @@ def run():
       
         while len(state['board']['snakes']) > 1 and not done:
             #time.sleep(0.5)
-            _global.board_json_list = state
 
             zero_health = False
 
@@ -98,7 +103,7 @@ def run():
                     state['you'] = snake
                     #my_move = pg_conv_agent.run_ai(state, testing)
                     t0 = time.clock()
-                    my_move = sage_serpent.run_ai(1, 10, 5, 225, state)
+                    my_move = sage_serpent.run_ai(1, 10, 6, 100, state)
                     t1 = time.clock()
                     total = t1-t0
                     #print("sage: " + str(total * 1000) + "ms")
@@ -142,10 +147,13 @@ def run():
                     bad_loss += 1
                 if zero_health:
                     hunger_loss += 1
+                    print('no health')
                 reward = -1.0
                 done = True
+                #input()
 
             #pg_conv_agent.set_reward(reward)
+            _global.board_json_list = state
 
         #if game_number % batch_size == 0 and not testing:
         #    sum_of_scores += pg_conv_agent.update_policy()
@@ -153,9 +161,8 @@ def run():
         sum_of_game_length += state['turn']
 
         if game_number % graph_update == 0:
-            if loss == 0:
-                loss = -1
-            print('Sim: ' + str(win) + '/' + str(loss) + '/' + str(float(win)/float(loss + win)))
+
+            print('Sim: ' + str(win) + '/' + str(loss) + '/' + str(hunger_loss) + '/' + str(float(win)/float(loss + win)))
 
             # Update Graph
             if enable_graph:
@@ -185,7 +192,8 @@ def run():
             hunger_loss = 0
             sum_of_scores = 0
             sum_of_game_length = 0'''
-
+    print('Finished testing 100 games')
+    input()
     return
 
 def load_initial_state():
