@@ -15,10 +15,10 @@ h = {
     'dead' : 10,
     'alive' : 100,
     'last_alive': 2000,
-    'turn_alive': 100,
-    'full' : 300,
-    'not_next_to_wall' : 125,
-    'points_for_free_space': 125
+    'turn_alive': 25,
+    'full' : 200,
+    'not_next_to_wall' : 25,
+    'points_for_free_space': 75
 }
 
 print(h)
