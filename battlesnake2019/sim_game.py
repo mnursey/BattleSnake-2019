@@ -16,7 +16,7 @@ enable_graph = False
 
 I = 10
 N = 6
-G = 40
+G = 120
 
 print("I:{} N:{} G:{}".format(I, N, G))
 

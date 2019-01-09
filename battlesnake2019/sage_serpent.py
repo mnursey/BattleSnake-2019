@@ -14,11 +14,11 @@ mutation_chance = 100
 h = {
     'dead' : 10,
     'alive' : 100,
-    'last_alive': 1500,
-    'turn_alive': 25,
-    'full' : 200,
-    'not_next_to_wall' : 25,
-    'points_for_free_space': 75
+    'last_alive': 2000,
+    'turn_alive': 100,
+    'full' : 300,
+    'not_next_to_wall' : 125,
+    'points_for_free_space': 125
 }
 
 print(h)
@@ -49,7 +49,7 @@ def run_ai(K, I, N, G, state):
             for s in range(len(preds[snake['id']])):
                 temp_state = pickle.loads(pickle.dumps(state, -1))
                 temp_state = simulate(temp_state, s, snake['id'], preds)
-                ratings[snake['id']].append(rate(temp_state, state, snake['id']))
+                ratings[snake['id']].append(rate(temp_state, state, snake['id'], N))
         improve_preds(preds, ratings)
 
     # find best move
@@ -59,7 +59,7 @@ def run_ai(K, I, N, G, state):
         for s in range(len(preds[snake['id']])):
             temp_state = pickle.loads(pickle.dumps(state, -1))
             temp_state = simulate(temp_state, s, snake['id'], preds)
-            ratings[snake['id']].append(rate(temp_state, state, snake['id']))
+            ratings[snake['id']].append(rate(temp_state, state, snake['id'], N))
 
     best = 0
     best_index = 0
@@ -92,7 +92,7 @@ def simulate(state, s, id, preds):
         
         # sim moves
         if len(moves) > 1:
-            state = engine.Run(state, moves) 
+            state = engine.Run(state, moves, True) 
             #_global.board_json_list = state
 
             for snake in state['board']['snakes']:
@@ -103,9 +103,9 @@ def simulate(state, s, id, preds):
 
     return state
 
-def rate(state, prev_state, id):
+def rate(state, prev_state, id, N):
     score = 0
-
+    turns_played = state['turn'] - prev_state['turn']
     #turns alive
     score += h['turn_alive'] * state['stats'][id]['turns_alive']
     grid = None
@@ -119,7 +119,7 @@ def rate(state, prev_state, id):
 
             score += h['alive']
             if len(state['board']['snakes']) == 1:
-                score += h['last_alive']
+                score += h['last_alive'] * (N + 1 - turns_played)
 
             head = snake['body'][0]
             if head['x'] != 0 and head['y'] != 0 and head['x'] != state['board']['width'] - 1 and head['y'] != state['board']['height'] - 1:

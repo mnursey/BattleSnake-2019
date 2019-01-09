@@ -1,6 +1,6 @@
 import random 
 
-def Run(state, moves):
+def Run(state, moves, replace_food = True):
 
     # move heads
     # reduce health
@@ -65,6 +65,9 @@ def Run(state, moves):
 
     # add new food
     tries = 5000
+    if not replace_food:
+        tries = 0
+
     while num_food_to_gen > 0 and tries > 0:
         for i in range(num_food_to_gen):
             x = random.randint(0, state['board']['width'] - 1)
