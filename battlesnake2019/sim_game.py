@@ -11,6 +11,7 @@ import random
 import matplotlib.pyplot as plt
 import sage_serpent
 import pickle
+import ff_snake
 
 enable_graph = False
 
@@ -18,7 +19,7 @@ I = 10
 N = 6
 G = 120
 
-print("I:{} N:{} G:{}".format(I, N, G))
+#print("I:{} N:{} G:{}".format(I, N, G))
 
 def run():
   
@@ -30,12 +31,13 @@ def run():
     game_number = 0
     sum_of_game_length = 0
     max_turns = 1000
-    batch_size = 500
+    batch_size = 100
 
     testing = False
     #pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
     #pg_conv_agent.load('FBrbx385000')
     original_state = load_initial_state()
+    ff = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size)
 
     graphs_plots_r = [[0],[0]]
     graphs_plots_b = [[0],[500]]
@@ -43,7 +45,7 @@ def run():
     graphs_plots_y = [[0],[0]]
     graphs_plots_p = [[0],[0]]
 
-    graph_update = 5
+    graph_update = 100
 
     if enable_graph:
         plt.ylabel('Wins over ' + str(graph_update) + ' games')
@@ -55,11 +57,12 @@ def run():
         plt.draw()
         plt.pause(0.000001)
 
-    while game_number < 100:
+    while True:
         game_number += 1
 
         # new episode
         #pg_conv_agent.new_episode()
+        ff.new_episode()
 
         done = False
         # copy original state
@@ -91,7 +94,6 @@ def run():
                     break
       
         while len(state['board']['snakes']) > 1 and not done:
-            #time.sleep(0.5)
 
             zero_health = False
 
@@ -101,20 +103,26 @@ def run():
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
                     state['you'] = snake
+
                     #my_move = pg_conv_agent.run_ai(state, testing)
-                    t0 = time.clock()
+
+                    '''t0 = time.clock()
                     my_move = sage_serpent.run_ai(1, 10, 6, 100, state)
                     t1 = time.clock()
-                    total = t1-t0
+                    total = t1-t0'''
                     #print("sage: " + str(total * 1000) + "ms")
 
+                    my_move = ff.run_ai(state)
+
                     moves.append((my_move, 'A'))
+
                     ai_surrounding_space = snake_random.get_free_moves(state, grid)
                     if snake['health'] <= 1:
                         zero_health = True
+
                 if snake['id'] == 'B':
                     state['you'] = snake
-                    moves.append((snake2018.run_ai(state), 'B'))
+                    moves.append((snake_random.run_corners_ai(state), 'B'))
 
             state = engine.Run(state, moves) 
 
@@ -135,14 +143,14 @@ def run():
                 reward =  0.0
 
             if found and not enemy_found:
-                print('win')
+                #print('win')
                 win += 1
                 reward = 1.0
                    
                 
             if not found or state['turn'] > max_turns:
                 loss += 1
-                print('loss')
+                #print('loss')
                 if len(ai_surrounding_space) > 0 and not zero_health:
                     bad_loss += 1
                 if zero_health:
@@ -150,13 +158,16 @@ def run():
                     print('no health')
                 reward = -1.0
                 done = True
-                #input()
 
+            # set rewards
             #pg_conv_agent.set_reward(reward)
+            ff.set_reward(reward)
             _global.board_json_list = state
 
-        #if game_number % batch_size == 0 and not testing:
-        #    sum_of_scores += pg_conv_agent.update_policy()
+        # update policy
+        if game_number % batch_size == 0 and not testing:
+            #sum_of_scores += pg_conv_agent.update_policy()
+            ff.update_policy()
 
         sum_of_game_length += state['turn']
 
@@ -186,14 +197,12 @@ def run():
                 plt.draw()
                 plt.pause(0.000001)
 
-            '''loss = 0
+            loss = 0
             win = 0
             bad_loss = 0
             hunger_loss = 0
             sum_of_scores = 0
-            sum_of_game_length = 0'''
-    print('Finished testing 100 games')
-    input()
+            sum_of_game_length = 0
     return
 
 def load_initial_state():

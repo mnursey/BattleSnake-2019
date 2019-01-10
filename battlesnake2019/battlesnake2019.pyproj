@@ -28,6 +28,9 @@
     <Compile Include="engine.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="ff_snake.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="gamelogger.py">
       <SubType>Code</SubType>
     </Compile>
