@@ -155,7 +155,7 @@ def run():
                     bad_loss += 1
                 if zero_health:
                     hunger_loss += 1
-                    print('no health')
+                    #print('no health')
                 reward = -1.0
                 done = True
 
