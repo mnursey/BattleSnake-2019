@@ -13,7 +13,7 @@ import sage_serpent
 import pickle
 import ff_snake
 
-enable_graph = False
+enable_graph = True
 
 I = 10
 N = 6

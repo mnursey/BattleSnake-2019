@@ -39,8 +39,8 @@ class Policy():
     def __init__(self, board_width, board_height, batch_size):
         super(Policy, self).__init__()
 
-        n_input = 75
-        n_hidden = 25
+        n_input = 100
+        n_hidden = 50
         n_output = 4
 
         self.gamma = 0.99
@@ -116,10 +116,21 @@ class Policy():
         walls = np.full((window_size, window_size), 0)
         friendly = np.full((window_size, window_size), 0)
         enemy = np.full((window_size, window_size), 0)
+        food = np.full((window_size, window_size), 0)
 
         centre_x = input['you']['body'][0]['x']
         centre_y = input['you']['body'][0]['y'] 
 
+        # walls
+        for x in range(-(window_size // 2), window_size // 2 + 1):
+            for y in range(-(window_size // 2), window_size // 2 + 1):
+                r_x = centre_x + x
+                r_y = centre_y + y
+
+                if 0 > r_x or 0 > r_y or r_x >= input['board']['width'] or r_y  >= input['board']['height']:
+                    walls[x + window_size // 2, y + window_size // 2] = 1
+
+        # snakes
         for snake in input['board']['snakes']:
             for body in snake['body']:
                 c_x = body['x'] - centre_x
@@ -131,7 +142,34 @@ class Policy():
                     else:
                         enemy[c_x + window_size // 2, c_y + window_size // 2] = 1;
 
-        return np.array([walls, friendly, enemy]).flatten(), facing
+        # food
+        for f in input['board']['food']:
+            c_x = f['x'] - centre_x
+            c_y = f['y'] - centre_y
+            
+            if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
+                    food[c_x + window_size // 2, c_y + window_size // 2] = 1;
+
+        # rotate view
+        head = input['you']['body'][0]
+        neck = input['you']['body'][1]
+
+        # 0 -> north, 1 -> east, 2-> south, 3-> west
+        facing = 0
+        if neck['y'] < head['y']:
+            facing = 2
+        if neck['x'] < head['x']:
+            facing = 1
+        if neck['x'] > head['x']:
+            facing = 3
+
+        np.rot90(walls, k=facing, axes=(1,0))
+        np.rot90(friendly, k=facing, axes=(1,0))
+        np.rot90(enemy, k=facing, axes=(1,0))
+        np.rot90(food, k=facing, axes=(1,0))
+
+        #print(np.array([walls, friendly, enemy, food]))
+        return np.array([walls, friendly, enemy, food]).flatten(), facing
 
     def run_ai(self, input):
         model_input, facing = self.transform_input(input)
@@ -143,16 +181,18 @@ class Policy():
         # Add log probability of our chosen action to our history    
         self.ep_policy_history[-1].append(c.log_prob(action))
 
-        if(action == 0):
-            action = 'up'
-        elif(action == 1):
-            action = 'down'
-        elif(action == 2):
-            action = 'left'
-        elif(action == 3):
-            action = 'right'
+        action = (action + facing) % 4
 
-        return action
+        if(action == 0):
+            out = 'up'
+        elif(action == 1):
+            out = 'right'
+        elif(action == 2):
+            out = 'down'
+        elif(action == 3):
+            out = 'left'
+
+        return out
 
     def set_reward(self, reward):
         self.ep_reward_episode[-1].append(reward)
