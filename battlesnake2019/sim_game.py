@@ -167,7 +167,7 @@ def run():
         # update policy
         if game_number % batch_size == 0 and not testing:
             #sum_of_scores += pg_conv_agent.update_policy()
-            ff.update_policy()
+            sum_of_scores += ff.update_policy()
 
         sum_of_game_length += state['turn']
 
