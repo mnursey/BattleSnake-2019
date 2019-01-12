@@ -21,7 +21,7 @@ h = {
     'points_for_free_space': 75
 }
 
-print(h)
+#print(h)
 
 
 def run_ai(K, I, N, G, state):

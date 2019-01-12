@@ -25,6 +25,9 @@
     <Compile Include="data_formatter.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="dqn_snake.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="engine.py">
       <SubType>Code</SubType>
     </Compile>

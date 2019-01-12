@@ -26,12 +26,14 @@ class Net(torch.nn.Module):
 
         self.h_1 = torch.nn.Linear(n_feature, n_hidden)      # hidden layer
         self.h_2 = torch.nn.Linear(n_hidden, n_hidden)      # hidden layer
+        self.h_3 = torch.nn.Linear(n_hidden, n_hidden)      # hidden layer
         self.output = torch.nn.Linear(n_hidden, n_output)      # hidden layer
 
     def forward(self, x):
         x = x.float()
         x = F.relu(self.h_1(x))
         x = F.relu(self.h_2(x))
+        x = F.relu(self.h_3(x))
         x = F.softmax(self.output(x), dim=-1)
         return x
 
@@ -39,12 +41,12 @@ class Policy():
     def __init__(self, board_width, board_height, batch_size):
         super(Policy, self).__init__()
 
-        n_input = 100
-        n_hidden = 50
+        n_input = 7 * 81 + 4
+        n_hidden = 256
         n_output = 4
 
         self.gamma = 0.99
-        self.learning_rate = 0.001
+        self.learning_rate = 0.01
 
         self.net = Net(n_feature = n_input, n_hidden = n_hidden, n_output = n_output).to(device)
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr = self.learning_rate)
@@ -97,25 +99,35 @@ class Policy():
 
         self.episode += self.batch_size
 
+        l = loss.item()
+
         if self.episode % 1000 == 0:
             #print('Trainer: loss history - ' + str(self.loss_history))
             episode_avg = self.loss_history
             episode_avg = sum(episode_avg) / len(episode_avg)
-            print('Trainer: episode ' + str(self.episode) + ' ' + str(loss.item()) + ' ' + str(episode_avg))
+            print('Trainer: episode ' + str(self.episode) + ' ' + str(l) + ' ' + str(episode_avg))
             self.loss_history = []
 
         '''if self.episode % 5000 == 0:
             self.save()'''
 
-        return loss.item()
+        if l == 0:
+            print("ff - Zero Loss")
+
+        return l
 
     def transform_input(self, input):
-        window_size = 5
+        window_size = 9
 
         facing = 0
+        my_stats = np.array([input['you']['health'] / 100, len(input['you']['body'])])
+        en_stats = np.array([0, 0])
         walls = np.full((window_size, window_size), 0)
         friendly = np.full((window_size, window_size), 0)
         enemy = np.full((window_size, window_size), 0)
+        enemy_head = np.full((window_size, window_size), 0)
+        big_en = np.full((window_size, window_size), 0)
+        sml_en = np.full((window_size, window_size), 0)
         food = np.full((window_size, window_size), 0)
 
         centre_x = input['you']['body'][0]['x']
@@ -128,19 +140,27 @@ class Policy():
                 r_y = centre_y + y
 
                 if 0 > r_x or 0 > r_y or r_x >= input['board']['width'] or r_y  >= input['board']['height']:
-                    walls[x + window_size // 2, y + window_size // 2] = 1
+                    walls[y + window_size // 2, x + window_size // 2] = 1
 
         # snakes
         for snake in input['board']['snakes']:
-            for body in snake['body']:
+            for i, body in enumerate(snake['body']):
                 c_x = body['x'] - centre_x
                 c_y = body['y'] - centre_y
 
                 if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
                     if snake['id'] == input['you']['id']:
-                        friendly[c_x + window_size // 2, c_y + window_size // 2] = 1;
+                        friendly[c_y + window_size // 2, c_x + window_size // 2] = 1;
                     else:
-                        enemy[c_x + window_size // 2, c_y + window_size // 2] = 1;
+                        enemy[c_y + window_size // 2, c_x + window_size // 2] = 1;
+
+                        if i == 0:
+                            enemy_head[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                            en_stats = np.array([snake['health'] / 100, len(snake['body'])])
+                            if len(snake['body']) < len(input['you']['body']):
+                                sml_en[c_x + window_size // 2, c_y + window_size // 2] = 1;
+                            else:
+                                big_en[c_y + window_size // 2, c_x + window_size // 2] = 1;
 
         # food
         for f in input['board']['food']:
@@ -148,7 +168,7 @@ class Policy():
             c_y = f['y'] - centre_y
             
             if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
-                    food[c_x + window_size // 2, c_y + window_size // 2] = 1;
+                    food[(c_y + window_size // 2), (c_x + window_size // 2)] = 1;
 
         # rotate view
         head = input['you']['body'][0]
@@ -163,13 +183,23 @@ class Policy():
         if neck['x'] > head['x']:
             facing = 3
 
-        np.rot90(walls, k=facing, axes=(1,0))
-        np.rot90(friendly, k=facing, axes=(1,0))
-        np.rot90(enemy, k=facing, axes=(1,0))
-        np.rot90(food, k=facing, axes=(1,0))
+        walls = np.rot90(walls, k=facing)
+        friendly = np.rot90(friendly, k=facing)
+        enemy = np.rot90(enemy, k=facing)
+        enemy_head = np.rot90(enemy_head, k=facing)
+        big_en = np.rot90(big_en, k=facing)
+        sml_en = np.rot90(sml_en, k=facing)
+        food = np.rot90(food, k=facing)
 
-        #print(np.array([walls, friendly, enemy, food]))
-        return np.array([walls, friendly, enemy, food]).flatten(), facing
+        '''print('walls')
+        print(walls)
+        print('friendly')
+        print(friendly)
+        print('food')
+        print(food)'''
+
+        out = np.append( np.array([walls, friendly, enemy, enemy_head, big_en, sml_en, food]).flatten(), np.array([my_stats, en_stats]).flatten())
+        return out, facing
 
     def run_ai(self, input):
         model_input, facing = self.transform_input(input)
@@ -181,7 +211,7 @@ class Policy():
         # Add log probability of our chosen action to our history    
         self.ep_policy_history[-1].append(c.log_prob(action))
 
-        action = (action + facing) % 4
+        action = (action - facing) % 4
 
         if(action == 0):
             out = 'up'

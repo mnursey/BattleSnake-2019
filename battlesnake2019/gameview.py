@@ -1,5 +1,6 @@
 import pygame
 import math
+import _global
 
 class GameView:
 
@@ -51,7 +52,15 @@ class GameView:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self._running = False
-            
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    _global.view_mode = 0
+                if event.key == pygame.K_RIGHT:
+                    _global.view_mode = 1
+                if event.key == pygame.K_UP:
+                    _global.view_mode = 2
+                if event.key == pygame.K_DOWN:
+                    _global.view_mode = 3
         self._window.fill(self.backgroundColor)
         self.draw()
         pygame.display.update()
