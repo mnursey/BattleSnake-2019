@@ -62,6 +62,14 @@ class Policy():
         print("Policy: Gamma:{} Learning Rate:{}".format(self.gamma, self.learning_rate))
         print(self.net)
 
+        self.random_chars = random.choice(string.ascii_letters)
+        self.random_chars += random.choice(string.ascii_letters)
+        self.random_chars += random.choice(string.ascii_letters)
+        self.random_chars += random.choice(string.ascii_letters)
+        self.random_chars += random.choice(string.ascii_letters)
+
+        print('Random Save ID: ' + self.random_chars)
+
         return
 
     def update_policy(self):
@@ -113,6 +121,10 @@ class Policy():
 
         if l == 0:
             print("ff - Zero Loss")
+
+        
+        if self.episode % 5000 == 0:
+            self.save()
 
         return l
 
@@ -231,4 +243,19 @@ class Policy():
     def new_episode(self):
         self.ep_policy_history.append([])
         self.ep_reward_episode.append([])
+        return
+
+    def save(self):
+
+        state = {
+            'state_dict'    : self.net.state_dict(),
+            'optimizer'     : self.optimizer.state_dict(),
+            'gamma'         : self.gamma,
+            'learning_rate' : self.learning_rate,
+            'episode'       : self.episode,
+            'random_chars'  : self.random_chars
+        }
+
+        torch.save(state, './models/convnet/' + self.random_chars + str(self.episode) + '.pth')
+
         return

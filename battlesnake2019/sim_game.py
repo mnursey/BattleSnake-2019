@@ -39,9 +39,9 @@ N = 6
 G = 120
 
 h = {
-    'win' : 0.0,
+    'win' : 1.5,
     'loss': -1.0,
-    'ate': 0.5,
+    'ate': 0.1,
     'initial': 0.0
     }
 
@@ -232,10 +232,9 @@ def run():
 
             if found and not enemy_found:
                 #print('win')
-                if length > 10:
-                    win += 1
-                    reward += h['win']
-                    done = True       
+                win += 1
+                reward += h['win']
+                done = True       
 
             if not found or state['turn'] > max_turns + size_turn_bonus * max(length - 3, 0):
                 loss += 1
