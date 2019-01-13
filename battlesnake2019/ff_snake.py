@@ -42,7 +42,7 @@ class Policy():
         super(Policy, self).__init__()
 
         n_input = 7 * 81 + 4
-        n_hidden = 256
+        n_hidden = 512
         n_output = 4
 
         self.gamma = 0.99

@@ -38,22 +38,22 @@ I = 10
 N = 6
 G = 120
 
-h = {
-    'win' : 0.5,
+h_index = 0
+h = [{
+    'win' : 0.1,
     'loss': -1.0,
-    'ate': 0.1,
+    'ate': 0.8,
     'initial': 0.0
-    }
-
-h1 = {
+    },
+    {
     'win' : 3.0,
     'loss': -2.0,
     'ate': 0.001,
-    'initial': 0.0
+    'initial': -0.001
     }
+]
 
 print(h)
-print(h1)
 #print("I:{} N:{} G:{}".format(I, N, G))
 
 def RunGraph():
@@ -112,7 +112,7 @@ def run():
     global graph_current_data
 
     global h
-    global h1
+    global h_index
 
     testing = False
     #pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
@@ -226,7 +226,7 @@ def run():
             found = False
             enemy_found = False
             ate = False
-            reward = h['initial']
+            reward = h[h_index]['initial']
             length = 0
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
@@ -239,12 +239,12 @@ def run():
                     enemy_found = True
             
             if ate:
-                reward += h['ate']
+                reward += h[h_index]['ate']
 
             if found and not enemy_found:
                 #print('win')
                 win += 1
-                reward += h['win']
+                reward += h[h_index]['win']
                 done = True       
 
             if not found or state['turn'] > max_turns + size_turn_bonus * max(length - 3, 0):
@@ -255,7 +255,7 @@ def run():
                 if zero_health:
                     hunger_loss += 1
                     #print('no health')
-                reward = h['loss']
+                reward = h[h_index]['loss']
                 done = True
 
             # set rewards
@@ -286,8 +286,8 @@ def run():
             graphs_plots_p[0].append(game_number)
             graphs_plots_p[1].append(hunger_loss)
 
-            if win > 60:
-                h = h1
+            if win > 25 and h_index == 0:
+                h_index = 1
                 print('changing scoring')
 
             loss = 0
