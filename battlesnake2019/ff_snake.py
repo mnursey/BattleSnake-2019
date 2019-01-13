@@ -46,7 +46,7 @@ class Policy():
         n_output = 4
 
         self.gamma = 0.99
-        self.learning_rate = 0.0001
+        self.learning_rate = 0.001
 
         self.net = Net(n_feature = n_input, n_hidden = n_hidden, n_output = n_output).to(device)
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr = self.learning_rate)
@@ -211,7 +211,7 @@ class Policy():
         # Add log probability of our chosen action to our history    
         self.ep_policy_history[-1].append(c.log_prob(action))
 
-        action = (action - facing) % 4
+        action = (action + facing) % 4
 
         if(action == 0):
             out = 'up'

@@ -61,6 +61,13 @@ class GameView:
                     _global.view_mode = 2
                 if event.key == pygame.K_DOWN:
                     _global.view_mode = 3
+
+                if event.key == pygame.K_g:
+                    if _global.enable_graph == 0:
+                        _global.enable_graph = 1
+                    else:
+                        _global.enable_graph = 3
+
         self._window.fill(self.backgroundColor)
         self.draw()
         pygame.display.update()

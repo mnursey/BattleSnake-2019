@@ -15,10 +15,7 @@ import pickle
 import ff_snake
 import _thread
 
-enable_graph = True
 graph_update = 100
-
-graph_current_data = 0
 
 graphs_plots_r = [[0],[0]]
 graphs_plots_b = [[0],[graph_update]]
@@ -42,16 +39,19 @@ N = 6
 G = 120
 
 h = {
-    'win' : 8.0,
-    'loss': -3.0,
-    'ate': 0.5
+    'win' : 1.0,
+    'loss': -1.0,
+    'ate': 0.01,
+    'initial': 0.0
     }
 
 print(h)
 #print("I:{} N:{} G:{}".format(I, N, G))
 
-def RunGraph(thread_name):
-
+def RunGraph():
+    if  _global.enable_graph == 0:
+        return
+    
     global graphs_plots_r 
     global graphs_plots_b 
     global graphs_plots_g 
@@ -59,36 +59,40 @@ def RunGraph(thread_name):
     global graphs_plots_p 
     global graph_current_data
 
-    plt.dpi = 200
-    plt.ylabel('Wins over ' + str(graph_update) + ' games')
-    plt.xlabel('Periods')
-    plt.axhline(0, color='black')
-    plt.ion()
-    plt.show()
+    if  _global.enable_graph == 1:
+        plt.dpi = 200
+        plt.ylabel('Wins over ' + str(graph_update) + ' games')
+        plt.xlabel('Periods')
+        plt.axhline(0, color='black')
+        plt.ion()
+        plt.show()
+        _global.enable_graph = 2
 
-    while True:
 
-        if game_number % graph_update == 0 and graph_current_data == 1:
-            plt.axis([0, game_number + game_number * 0.1 , -5, graph_update])
-            graphs_plots_r[0].append(game_number)
-            graphs_plots_r[1].append(win)
-            graphs_plots_b[0].append(game_number)
-            graphs_plots_b[1].append(bad_loss)
-            graphs_plots_g[0].append(game_number)
-            graphs_plots_g[1].append((sum_of_scores / graph_update * 100))
-            graphs_plots_y[0].append(game_number )
-            graphs_plots_y[1].append(sum_of_game_length / graph_update)
-            graphs_plots_p[0].append(game_number)
-            graphs_plots_p[1].append(hunger_loss)
-            plt.plot(graphs_plots_r[0],graphs_plots_r[1], 'r-')
-            plt.plot(graphs_plots_b[0],graphs_plots_b[1], 'b-')
-            plt.plot(graphs_plots_g[0],graphs_plots_g[1], 'g-')
-            plt.plot(graphs_plots_y[0],graphs_plots_y[1], 'y-')
-            plt.plot(graphs_plots_p[0],graphs_plots_p[1], '-', color = 'purple')
-            graph_current_data = 0
+    if game_number % graph_update == 0 and _global.enable_graph == 2:
+        plt.axis([0, game_number + game_number * 0.1 , -5, graph_update])
+        graphs_plots_r[0].append(game_number)
+        graphs_plots_r[1].append(win)
+        graphs_plots_b[0].append(game_number)
+        graphs_plots_b[1].append(bad_loss)
+        graphs_plots_g[0].append(game_number)
+        graphs_plots_g[1].append((sum_of_scores / graph_update * 100))
+        graphs_plots_y[0].append(game_number )
+        graphs_plots_y[1].append(sum_of_game_length / graph_update)
+        graphs_plots_p[0].append(game_number)
+        graphs_plots_p[1].append(hunger_loss)
+        plt.plot(graphs_plots_r[0],graphs_plots_r[1], 'r-')
+        plt.plot(graphs_plots_b[0],graphs_plots_b[1], 'b-')
+        plt.plot(graphs_plots_g[0],graphs_plots_g[1], 'g-')
+        plt.plot(graphs_plots_y[0],graphs_plots_y[1], 'y-')
+        plt.plot(graphs_plots_p[0],graphs_plots_p[1], '-', color = 'purple')
 
         plt.draw()
         plt.pause(0.0001)
+
+    if _global.enable_graph == 3:
+        plt.close()
+        _global.enable_graph = 0
 
 def run():
 
@@ -102,17 +106,12 @@ def run():
     global max_turns
     global size_turn_bonus
     global batch_size
-    global graph_current_data
 
     testing = False
     #pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
     #pg_conv_agent.load('FBrbx385000')
     original_state = load_initial_state()
-    ff = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size)
-
-    if enable_graph:
-        _thread.start_new_thread(RunGraph, ("Thread-Graph",))
-      
+    ff = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size)      
 
     while True:
         game_number += 1
@@ -220,7 +219,7 @@ def run():
             found = False
             enemy_found = False
             ate = False
-            reward = 0.0
+            reward = h['initial']
             length = 0
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
@@ -265,15 +264,12 @@ def run():
 
         sum_of_game_length += state['turn']
 
+        RunGraph()
+
         if game_number % graph_update == 0:
 
             print('Sim: ' + str(win) + '/' + str(loss) + '/' + str(hunger_loss) + '/' + str(float(win)/float(loss + win)))                
             
-            if enable_graph:
-                graph_current_data = 1
-                while graph_current_data == 1:
-                    time.sleep(0.001)
-
             loss = 0
             win = 0
             bad_loss = 0
