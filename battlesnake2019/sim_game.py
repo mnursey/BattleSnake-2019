@@ -39,13 +39,21 @@ N = 6
 G = 120
 
 h = {
-    'win' : 1.5,
+    'win' : 0.5,
     'loss': -1.0,
     'ate': 0.1,
     'initial': 0.0
     }
 
+h1 = {
+    'win' : 3.0,
+    'loss': -2.0,
+    'ate': 0.001,
+    'initial': 0.0
+    }
+
 print(h)
+print(h1)
 #print("I:{} N:{} G:{}".format(I, N, G))
 
 def RunGraph():
@@ -102,6 +110,9 @@ def run():
     global graphs_plots_y 
     global graphs_plots_p 
     global graph_current_data
+
+    global h
+    global h1
 
     testing = False
     #pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
@@ -274,6 +285,10 @@ def run():
             graphs_plots_y[1].append(sum_of_game_length / graph_update)
             graphs_plots_p[0].append(game_number)
             graphs_plots_p[1].append(hunger_loss)
+
+            if win > 60:
+                h = h1
+                print('changing scoring')
 
             loss = 0
             win = 0
