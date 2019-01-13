@@ -65,7 +65,9 @@ class GameView:
                 if event.key == pygame.K_g:
                     if _global.enable_graph == 0:
                         _global.enable_graph = 1
-                    else:
+
+                if event.key == pygame.K_k:
+                    if _global.enable_graph != 0:
                         _global.enable_graph = 3
 
         self._window.fill(self.backgroundColor)

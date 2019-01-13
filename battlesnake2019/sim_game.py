@@ -39,9 +39,9 @@ N = 6
 G = 120
 
 h = {
-    'win' : 1.0,
+    'win' : 0.0,
     'loss': -1.0,
-    'ate': 0.01,
+    'ate': 0.5,
     'initial': 0.0
     }
 
@@ -51,7 +51,7 @@ print(h)
 def RunGraph():
     if  _global.enable_graph == 0:
         return
-    
+
     global graphs_plots_r 
     global graphs_plots_b 
     global graphs_plots_g 
@@ -71,22 +71,11 @@ def RunGraph():
 
     if game_number % graph_update == 0 and _global.enable_graph == 2:
         plt.axis([0, game_number + game_number * 0.1 , -5, graph_update])
-        graphs_plots_r[0].append(game_number)
-        graphs_plots_r[1].append(win)
-        graphs_plots_b[0].append(game_number)
-        graphs_plots_b[1].append(bad_loss)
-        graphs_plots_g[0].append(game_number)
-        graphs_plots_g[1].append((sum_of_scores / graph_update * 100))
-        graphs_plots_y[0].append(game_number )
-        graphs_plots_y[1].append(sum_of_game_length / graph_update)
-        graphs_plots_p[0].append(game_number)
-        graphs_plots_p[1].append(hunger_loss)
         plt.plot(graphs_plots_r[0],graphs_plots_r[1], 'r-')
         plt.plot(graphs_plots_b[0],graphs_plots_b[1], 'b-')
         plt.plot(graphs_plots_g[0],graphs_plots_g[1], 'g-')
         plt.plot(graphs_plots_y[0],graphs_plots_y[1], 'y-')
         plt.plot(graphs_plots_p[0],graphs_plots_p[1], '-', color = 'purple')
-
         plt.draw()
         plt.pause(0.0001)
 
@@ -106,6 +95,13 @@ def run():
     global max_turns
     global size_turn_bonus
     global batch_size
+
+    global graphs_plots_r 
+    global graphs_plots_b 
+    global graphs_plots_g 
+    global graphs_plots_y 
+    global graphs_plots_p 
+    global graph_current_data
 
     testing = False
     #pg_conv_agent = ml_trainer_torch.ConvAI(5, 5, batch_size)
@@ -236,7 +232,7 @@ def run():
 
             if found and not enemy_found:
                 #print('win')
-                if length > 5:
+                if length > 10:
                     win += 1
                     reward += h['win']
                     done = True       
@@ -264,18 +260,30 @@ def run():
 
         sum_of_game_length += state['turn']
 
-        RunGraph()
 
         if game_number % graph_update == 0:
 
-            print('Sim: ' + str(win) + '/' + str(loss) + '/' + str(hunger_loss) + '/' + str(float(win)/float(loss + win)))                
+            print('Sim: ' + str(win) + '/' + str(loss) + '/' + str(hunger_loss) + '/' + str(float(win)/float(loss + win)))    
             
+            graphs_plots_r[0].append(game_number)
+            graphs_plots_r[1].append(win)
+            graphs_plots_b[0].append(game_number)
+            graphs_plots_b[1].append(bad_loss)
+            graphs_plots_g[0].append(game_number)
+            graphs_plots_g[1].append((sum_of_scores / graph_update * 100))
+            graphs_plots_y[0].append(game_number )
+            graphs_plots_y[1].append(sum_of_game_length / graph_update)
+            graphs_plots_p[0].append(game_number)
+            graphs_plots_p[1].append(hunger_loss)
+
             loss = 0
             win = 0
             bad_loss = 0
             hunger_loss = 0
             sum_of_scores = 0
             sum_of_game_length = 0
+
+        RunGraph()
     return
 
 def load_initial_state():
