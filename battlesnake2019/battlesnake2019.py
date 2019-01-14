@@ -8,7 +8,7 @@ import loggerserver
 import data_formatter
 import engine
 import json
-import sim_game
+#import sim_game
 import ml_trainer_torch
 import multiprocessing
 import c_play

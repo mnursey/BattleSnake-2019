@@ -32,7 +32,7 @@ batch_size = 100
 
 h_index = 0
 h = [{
-    'win' : 0.0,
+    'win' : 0.001,
     'loss': -1.0,
     'ate': 0.8,
     'initial': 0.0
