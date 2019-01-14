@@ -18,17 +18,9 @@ if torch.cuda.is_available():
     device = torch.device('cuda')
     print('using cuda')
 else:
-    device = torch.device('cpu')    
+    device = torch.device('cpu')
 
 class Net(torch.nn.Module):
-
-    # Conv layer?
-
-    # x in 
-    # c_x = conv x
-    # x' = x + c_x
-    # ff x'
-    # x out
 
     def __init__(self, n_feature, n_hidden, n_output):
         super(Net, self).__init__()
@@ -40,9 +32,9 @@ class Net(torch.nn.Module):
 
     def forward(self, x):
         x = x.float()
-        x = F.relu(self.h_1(x))
-        x = F.relu(self.h_2(x))
-        x = F.relu(self.h_3(x))
+        x = F.elu(self.h_1(x))
+        x = F.elu(self.h_2(x))
+        x = F.elu(self.h_3(x))
         x = F.softmax(self.output(x), dim=-1)
         return x
 
@@ -93,7 +85,6 @@ class Policy():
                 rewards.appendleft(R)
 
         rewards = torch.FloatTensor(rewards).to(device)
-
         if len(rewards) > 1:
             rewards -= rewards.mean()
             if rewards.std() > 0:

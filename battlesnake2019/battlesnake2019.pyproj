@@ -22,6 +22,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="battlesnake2019.py" />
+    <Compile Include="c_play.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="data_formatter.py">
       <SubType>Code</SubType>
     </Compile>
@@ -56,6 +59,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="sage_serpent.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="self_play.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="server.py">
