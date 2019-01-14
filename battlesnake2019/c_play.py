@@ -32,7 +32,7 @@ batch_size = 100
 
 h_index = 0
 h = [{
-    'win' : 0.1,
+    'win' : 0.0,
     'loss': -1.0,
     'ate': 0.8,
     'initial': 0.0
@@ -246,7 +246,7 @@ def run():
             graphs_plots_g[0].append(game_number)
             graphs_plots_g[1].append(sum_of_game_length / batch_size)
 
-            if sum_of_game_length / batch_size > 25 and h_index == 0:
+            if sum_of_game_length / batch_size > 75 and h_index == 0:
                 h_index = 1
                 print('changing scoring')
 
