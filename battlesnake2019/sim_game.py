@@ -30,7 +30,7 @@ hunger_loss = 0
 sum_of_scores = 0
 game_number = 0
 sum_of_game_length = 0
-max_turns = 25
+max_turns = 500
 size_turn_bonus = 50
 batch_size = 100
 

@@ -21,6 +21,15 @@ else:
     device = torch.device('cpu')    
 
 class Net(torch.nn.Module):
+
+    # Conv layer?
+
+    # x in 
+    # c_x = conv x
+    # x' = x + c_x
+    # ff x'
+    # x out
+
     def __init__(self, n_feature, n_hidden, n_output):
         super(Net, self).__init__()
 
@@ -42,7 +51,7 @@ class Policy():
         super(Policy, self).__init__()
 
         n_input = 7 * 81 + 4
-        n_hidden = 512
+        n_hidden = 256
         n_output = 4
 
         self.gamma = 0.99
@@ -162,9 +171,9 @@ class Policy():
 
                 if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
                     if snake['id'] == input['you']['id']:
-                        friendly[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                        friendly[c_y + window_size // 2, c_x + window_size // 2] += 1;
                     else:
-                        enemy[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                        enemy[c_y + window_size // 2, c_x + window_size // 2] += 1;
 
                         if i == 0:
                             enemy_head[c_y + window_size // 2, c_x + window_size // 2] = 1;
