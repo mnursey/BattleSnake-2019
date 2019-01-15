@@ -27,19 +27,20 @@ a_sum_of_scores = 0
 b_sum_of_scores = 0
 game_number = 0
 sum_of_game_length = 0
-max_turns = 500
+size_turn_bonus = 50
+max_turns = 15
 batch_size = 100
 
 h_index = 0
 h = [{
-    'win' : 0.001,
-    'loss': -1.0,
+    'win' : 0.0,
+    'loss': -0.2,
     'ate': 0.8,
     'initial': 0.0
     },
     {
-    'win' : 3.0,
-    'loss': -2.0,
+    'win' : 1.0,
+    'loss': -0.1,
     'ate': 0.001,
     'initial': -0.001
     }
@@ -209,18 +210,19 @@ def run():
             if a_found and not b_found:
                 a_win += 1
                 a_reward += h[h_index]['win']
-                b_reward += h[h_index]['loss']
+                b_reward = h[h_index]['loss']
                 done = True
 
             if b_found and not a_found:
                 b_win += 1
-                a_reward += h[h_index]['loss']
+                a_reward = h[h_index]['loss']
                 b_reward += h[h_index]['win']
                 done = True   
 
-            if state['turn'] > max_turns or (not a_found and not b_found):
-                a_reward += h[h_index]['loss']
-                b_reward += h[h_index]['loss']
+
+            if state['turn'] > max_turns + size_turn_bonus * max(max(a_length - 3, 0), max(b_length - 3, 0)) or (not a_found and not b_found):
+                a_reward = h[h_index]['loss']
+                b_reward = h[h_index]['loss']
                 done = True
 
             # set rewards
@@ -246,7 +248,7 @@ def run():
             graphs_plots_g[0].append(game_number)
             graphs_plots_g[1].append(sum_of_game_length / batch_size)
 
-            if sum_of_game_length / batch_size > 75 and h_index == 0:
+            if sum_of_game_length / batch_size > 50 and h_index == 0:
                 h_index = 1
                 print('changing scoring')
 
