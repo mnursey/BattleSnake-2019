@@ -42,11 +42,11 @@ class Policy():
     def __init__(self, board_width, board_height, batch_size):
         super(Policy, self).__init__()
 
-        n_input = 7 * 81 + 4
-        n_hidden = 256
+        n_input = 9 * 81 + 4
+        n_hidden = 512
         n_output = 4
 
-        self.gamma = 0.99
+        self.gamma = 0.75
         self.learning_rate = 0.001
 
         self.net = Net(n_feature = n_input, n_hidden = n_hidden, n_output = n_output).to(device)
@@ -136,8 +136,10 @@ class Policy():
         en_stats = np.array([0, 0])
         walls = np.full((window_size, window_size), 0)
         friendly = np.full((window_size, window_size), 0)
+        my_tail = np.full((window_size, window_size), 0)
         enemy = np.full((window_size, window_size), 0)
         enemy_head = np.full((window_size, window_size), 0)
+        en_tails = np.full((window_size, window_size), 0)
         big_en = np.full((window_size, window_size), 0)
         sml_en = np.full((window_size, window_size), 0)
         food = np.full((window_size, window_size), 0)
@@ -156,15 +158,22 @@ class Policy():
 
         # snakes
         for snake in input['board']['snakes']:
+            s_length = len(snake['body'])
             for i, body in enumerate(snake['body']):
                 c_x = body['x'] - centre_x
                 c_y = body['y'] - centre_y
 
                 if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
                     if snake['id'] == input['you']['id']:
-                        friendly[c_y + window_size // 2, c_x + window_size // 2] += 1;
+                        if i == s_length - 1:
+                            my_tail[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                        else:
+                            friendly[c_y + window_size // 2, c_x + window_size // 2] = 1;
                     else:
-                        enemy[c_y + window_size // 2, c_x + window_size // 2] += 1;
+                        if i == s_length - 1:
+                            en_tails[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                        else:
+                            enemy[c_y + window_size // 2, c_x + window_size // 2] = 1;
 
                         if i == 0:
                             enemy_head[c_y + window_size // 2, c_x + window_size // 2] = 1;
@@ -197,8 +206,10 @@ class Policy():
 
         walls = np.rot90(walls, k=facing)
         friendly = np.rot90(friendly, k=facing)
+        my_tail = np.rot90(my_tail, k=facing)
         enemy = np.rot90(enemy, k=facing)
         enemy_head = np.rot90(enemy_head, k=facing)
+        en_tails = np.rot90(en_tails, k=facing)
         big_en = np.rot90(big_en, k=facing)
         sml_en = np.rot90(sml_en, k=facing)
         food = np.rot90(food, k=facing)
@@ -210,7 +221,7 @@ class Policy():
         print('food')
         print(food)'''
 
-        out = np.append( np.array([walls, friendly, enemy, enemy_head, big_en, sml_en, food]).flatten(), np.array([my_stats, en_stats]).flatten())
+        out = np.append( np.array([walls, friendly, my_tail, enemy, enemy_head, en_tails, big_en, sml_en, food]).flatten(), np.array([my_stats, en_stats]).flatten())
         return out, facing
 
     def run_ai(self, input):
