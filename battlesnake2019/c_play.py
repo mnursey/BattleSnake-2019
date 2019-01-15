@@ -227,6 +227,7 @@ def run():
             ff_a.set_reward(a_reward)
             ff_b.set_reward(b_reward)
             _global.board_json_list = state
+            RunGraph()
 
         # update policy
         if game_number % batch_size == 0 and not testing:
