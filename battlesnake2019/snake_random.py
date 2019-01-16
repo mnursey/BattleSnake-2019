@@ -103,6 +103,22 @@ def move_towards(x, y, a, b):
 
     return move
 
+# move towards ab
+def move_towards_list(x, y, a, b):
+
+    moves = []
+
+    if x < a:
+        moves.append('right')
+    if x > a: 
+        moves.append('left')
+    if y < b:
+        moves.append('down')
+    if y > b: 
+        moves.append('up')
+
+    return moves
+
 def run_corners_ai(state, grid = None):
     if grid is None:
         grid = generate_grid(state)

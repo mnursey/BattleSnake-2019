@@ -36,13 +36,15 @@ h = [{
     'win' : 0.0,
     'loss': -0.2,
     'ate': 0.8,
-    'initial': 0.0
+    'initial': 0.0,
+    'greedy_attack': 0.0
     },
     {
-    'win' : 1.0,
-    'loss': -0.1,
-    'ate': 0.001,
-    'initial': -0.001
+    'win' : 0.5,
+    'loss': -1.0,
+    'ate': 0.01,
+    'initial': -0.01,
+    'greedy_attack': 0.1
     }
 ]
 
@@ -164,19 +166,25 @@ def run():
 
             moves = []
 
+            snakeA = None
+            snakeB = None
+            a_move = None
+            b_move = None
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
                     state['you'] = snake
+                    snakeA = snake
                     a_move = ff_a.run_ai(state)
-
                     moves.append((a_move, 'A'))
 
                 if snake['id'] == 'B':
                     state['you'] = snake
+                    snakeB = snake
                     b_move = ff_b.run_ai(state)
 
                     moves.append((b_move, 'B'))
 
+            greedy_attack_moves = snake_random.move_towards_list(snakeA['body'][0]['x'], snakeA['body'][0]['y'], snakeB['body'][0]['x'], snakeB['body'][0]['y'])
             state = engine.Run(state, moves) 
 
             a_found = False
@@ -206,6 +214,11 @@ def run():
                 a_reward += h[h_index]['ate']
             if b_ate:
                 b_reward += h[h_index]['ate']
+
+            if a_move in greedy_attack_moves:
+                a_reward +=h [h_index]['greedy_attack']
+            if b_move not in greedy_attack_moves:
+                b_reward +=h [h_index]['greedy_attack']
 
             if a_found and not b_found:
                 a_win += 1
