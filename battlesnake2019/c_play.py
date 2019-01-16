@@ -40,17 +40,19 @@ batch_size = 100
 h_index = 0
 h = [{
     'win' : 0.0,
-    'loss': -0.1,
+    'loss': -0.2,
     'ate': 0.8,
     'initial': 0.0,
-    'greedy_attack': 0.0
+    'greedy_attack': 0.0,
+    'h_change_option': 5000
     },
     {
     'win' : 0.5,
     'loss': -1.0,
     'ate': 0.01,
     'initial': -0.01,
-    'greedy_attack': 0.1
+    'greedy_attack': 0.1,
+    'h_change_option': 25000
     }
 ]
 
@@ -306,7 +308,7 @@ def run():
             graphs_plots_b_reward[0].append(game_number)
             graphs_plots_b_reward[1].append(b_sum_of_rewards / batch_size)
 
-            if game_number > 1500 and h_index == 0:
+            if game_number > h[h_index]['h_change_option'] and h_index == 0:
                 h_index = 1
                 print('changing scoring')
 
