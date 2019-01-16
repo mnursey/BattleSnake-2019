@@ -40,7 +40,7 @@ batch_size = 100
 h_index = 0
 h = [{
     'win' : 0.0,
-    'loss': -0.2,
+    'loss': -0.1,
     'ate': 0.8,
     'initial': 0.0,
     'greedy_attack': 0.0
@@ -215,7 +215,9 @@ def run():
 
                     moves.append((b_move, 'B'))
 
-            greedy_attack_moves = snake_random.move_towards_list(snakeA['body'][0]['x'], snakeA['body'][0]['y'], snakeB['body'][0]['x'], snakeB['body'][0]['y'])
+            greedy_attack_moves_a = snake_random.move_towards_list(snakeA['body'][0]['x'], snakeA['body'][0]['y'], snakeB['body'][0]['x'], snakeB['body'][0]['y'])
+            greedy_attack_moves_b = snake_random.move_towards_list(snakeB['body'][0]['x'], snakeB['body'][0]['y'], snakeA['body'][0]['x'], snakeA['body'][0]['y'])
+
             state = engine.Run(state, moves) 
 
             a_found = False
@@ -246,9 +248,9 @@ def run():
             if b_ate:
                 b_reward += h[h_index]['ate']
 
-            if a_move in greedy_attack_moves:
+            if a_move in greedy_attack_moves_a:
                 a_reward +=h [h_index]['greedy_attack']
-            if b_move not in greedy_attack_moves:
+            if b_move in greedy_attack_moves_b:
                 b_reward +=h [h_index]['greedy_attack']
 
             if a_found and not b_found:
