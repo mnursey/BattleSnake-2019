@@ -21,11 +21,16 @@ graph_update = 100
 graphs_plots_a = [[0],[0]]
 graphs_plots_b = [[0],[0]]
 graphs_plots_g = [[0],[0]]
-
+graphs_plots_a_loss = [[0],[0]]
+graphs_plots_b_loss = [[0],[0]]
+graphs_plots_a_reward = [[0],[0]]
+graphs_plots_b_reward = [[0],[0]]
 a_win = 0
 b_win = 0
 a_sum_of_scores = 0
 b_sum_of_scores = 0
+a_sum_of_rewards = 0
+b_sum_of_rewards = 0
 game_number = 0
 sum_of_game_length = 0
 size_turn_bonus = 50
@@ -55,9 +60,6 @@ def RunGraph():
     if  _global.enable_graph == 0:
         return
 
-    global graphs_plots_a
-    global graphs_plots_b 
-
     if  _global.enable_graph == 1:
         plt.dpi = 200
         plt.ion()
@@ -67,25 +69,32 @@ def RunGraph():
 
     if game_number % graph_update == 0 and _global.enable_graph == 2:
         plt.clf()
-        ax = plt.subplot(2, 1, 1)
+        ax = plt.subplot(3, 1, 1)
         ax.set_ylim([-5, 100])
         plt.axhline(0, color='black')
         a_plot_w_x = graphs_plots_a[0]
         a_plot_w_y = graphs_plots_a[1]
         b_plot_w_x = graphs_plots_b[0]
         b_plot_w_y = graphs_plots_b[1]
-        plt.plot(a_plot_w_x, a_plot_w_y, 'r-')
-        plt.plot(b_plot_w_x, b_plot_w_y, 'b-')
-        plt.ylabel('Wins over ' + str(graph_update) + ' games')
-        plt.xlabel('Periods')
-        plt.title('ML Graphs')
-
-        plt.subplot(2, 1, 2, sharex=ax)
-        plt.axhline(0, color='black')
         g_plot_w_x = graphs_plots_g[0]
         g_plot_w_y = graphs_plots_g[1]
+        plt.plot(a_plot_w_x, a_plot_w_y, 'r-')
+        plt.plot(b_plot_w_x, b_plot_w_y, 'b-')
         plt.plot(g_plot_w_x, g_plot_w_y, 'g-')
-        plt.ylabel('Average Game Length over ' + str(graph_update) + ' games')
+        plt.ylabel('Wins')
+        plt.title('ML Graphs')
+
+        plt.subplot(3, 1, 2, sharex=ax)
+        plt.axhline(0, color='black')
+        plt.plot(graphs_plots_a_loss[0], graphs_plots_a_loss[1], 'r-')
+        plt.plot(graphs_plots_b_loss[0], graphs_plots_b_loss[1], 'b-')
+        plt.ylabel('Average Loss')
+
+        plt.subplot(3, 1, 3, sharex=ax)
+        plt.axhline(0, color='black')
+        plt.plot(graphs_plots_a_reward[0], graphs_plots_a_reward[1], 'r-')
+        plt.plot(graphs_plots_b_reward[0], graphs_plots_b_reward[1], 'b-')
+        plt.ylabel('Average Reward')
         plt.xlabel('Periods')
 
     plt.draw()
@@ -101,6 +110,8 @@ def run():
     global b_win
     global a_sum_of_scores
     global b_sum_of_scores
+    global a_sum_of_rewards
+    global b_sum_of_rewards
     global game_number
     global sum_of_game_length
     global max_turns
@@ -109,6 +120,10 @@ def run():
     global graphs_plots_a
     global graphs_plots_b 
     global graphs_plots_g
+    global graphs_plots_a_loss
+    global graphs_plots_b_loss 
+    global graphs_plots_a_reward
+    global graphs_plots_b_reward 
 
     global h
     global h_index
@@ -257,6 +272,9 @@ def run():
             # set rewards
             ff_a.set_reward(a_reward)
             ff_b.set_reward(b_reward)
+            a_sum_of_rewards += a_reward
+            b_sum_of_rewards += b_reward
+
             _global.board_json_list = state
             RunGraph()
 
@@ -277,6 +295,14 @@ def run():
             graphs_plots_b[1].append(b_win)
             graphs_plots_g[0].append(game_number)
             graphs_plots_g[1].append(sum_of_game_length / batch_size)
+            graphs_plots_a_loss[0].append(game_number)
+            graphs_plots_a_loss[1].append(a_sum_of_scores / batch_size)
+            graphs_plots_b_loss[0].append(game_number)
+            graphs_plots_b_loss[1].append(b_sum_of_scores / batch_size)
+            graphs_plots_a_reward[0].append(game_number)
+            graphs_plots_a_reward[1].append(a_sum_of_rewards / batch_size)
+            graphs_plots_b_reward[0].append(game_number)
+            graphs_plots_b_reward[1].append(b_sum_of_rewards / batch_size)
 
             if sum_of_game_length / batch_size > 50 and h_index == 0:
                 h_index = 1
@@ -286,6 +312,8 @@ def run():
             b_win = 0
             a_sum_of_scores = 0
             b_sum_of_scores = 0
+            a_sum_of_rewards = 0
+            b_sum_of_rewards = 0
             sum_of_game_length = 0
 
         RunGraph()
