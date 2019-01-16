@@ -306,7 +306,7 @@ def run():
             graphs_plots_b_reward[0].append(game_number)
             graphs_plots_b_reward[1].append(b_sum_of_rewards / batch_size)
 
-            if sum_of_game_length / batch_size > 50 and h_index == 0:
+            if game_number > 1500 and h_index == 0:
                 h_index = 1
                 print('changing scoring')
 
