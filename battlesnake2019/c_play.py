@@ -14,6 +14,7 @@ import sage_serpent
 import pickle
 import ff_snake
 import _thread
+import numpy as np
 
 graph_update = 100
 
@@ -28,7 +29,7 @@ b_sum_of_scores = 0
 game_number = 0
 sum_of_game_length = 0
 size_turn_bonus = 50
-max_turns = 15
+max_turns = 50
 batch_size = 100
 
 h_index = 0
@@ -59,21 +60,36 @@ def RunGraph():
 
     if  _global.enable_graph == 1:
         plt.dpi = 200
-        plt.ylabel('Wins over ' + str(graph_update) + ' games')
-        plt.xlabel('Periods')
-        plt.axhline(0, color='black')
         plt.ion()
         plt.show()
         _global.enable_graph = 2
 
 
     if game_number % graph_update == 0 and _global.enable_graph == 2:
-        plt.axis([0, game_number + game_number * 0.1 , -5, graph_update])
-        plt.plot(graphs_plots_a[0],graphs_plots_a[1], 'r-')
-        plt.plot(graphs_plots_b[0],graphs_plots_b[1], 'b-')
-        plt.plot(graphs_plots_g[0],graphs_plots_g[1], 'g-')
-        plt.draw()
-        plt.pause(0.0001)
+        plt.clf()
+        ax = plt.subplot(2, 1, 1)
+        ax.set_ylim([-5, 100])
+        plt.axhline(0, color='black')
+        a_plot_w_x = graphs_plots_a[0]
+        a_plot_w_y = graphs_plots_a[1]
+        b_plot_w_x = graphs_plots_b[0]
+        b_plot_w_y = graphs_plots_b[1]
+        plt.plot(a_plot_w_x, a_plot_w_y, 'r-')
+        plt.plot(b_plot_w_x, b_plot_w_y, 'b-')
+        plt.ylabel('Wins over ' + str(graph_update) + ' games')
+        plt.xlabel('Periods')
+        plt.title('ML Graphs')
+
+        plt.subplot(2, 1, 2, sharex=ax)
+        plt.axhline(0, color='black')
+        g_plot_w_x = graphs_plots_g[0]
+        g_plot_w_y = graphs_plots_g[1]
+        plt.plot(g_plot_w_x, g_plot_w_y, 'g-')
+        plt.ylabel('Average Game Length over ' + str(graph_update) + ' games')
+        plt.xlabel('Periods')
+
+    plt.draw()
+    plt.pause(0.0001)
 
     if _global.enable_graph == 3:
         plt.close()
