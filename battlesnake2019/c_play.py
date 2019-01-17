@@ -39,11 +39,12 @@ batch_size = 100
 
 h_index = 0
 h = [{
-    'win' : 0.0,
+    'win' : 0.001,
     'loss': -0.05,
     'ate': 0.8,
     'initial': 0.0,
     'greedy_attack': 0.001,
+    'retreat' : -0.002,
     'h_change_option': 2500
     },
     {
@@ -52,6 +53,7 @@ h = [{
     'ate': 0.01,
     'initial': -0.01,
     'greedy_attack': 0.1,
+    'retreat' : -0.002,
     'h_change_option': 25000
     }
 ]
@@ -252,8 +254,13 @@ def run():
 
             if a_move in greedy_attack_moves_a:
                 a_reward +=h [h_index]['greedy_attack']
+            else:
+                a_reward +=h [h_index]['retreat']
+
             if b_move in greedy_attack_moves_b:
                 b_reward +=h [h_index]['greedy_attack']
+            else:
+                b_reward +=h [h_index]['retreat']
 
             if a_found and not b_found:
                 a_win += 1
@@ -308,9 +315,9 @@ def run():
             graphs_plots_b_reward[0].append(game_number)
             graphs_plots_b_reward[1].append(b_sum_of_rewards / graph_update)
 
-            if game_number > h[h_index]['h_change_option'] and h_index == 0:
+            '''if game_number > h[h_index]['h_change_option'] and h_index == 0:
                 h_index = 1
-                print('changing scoring')
+                print('changing scoring')'''
 
             a_win = 0
             b_win = 0

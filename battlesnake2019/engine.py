@@ -81,6 +81,12 @@ def Run(state, moves, replace_food = True):
                         collision = True
                         break
 
+            for food in state['board']['food']:
+                if collision: break
+                if food['x'] == x and food['y'] == y:
+                    collision = True
+                    break
+
             tries -= 1
 
             if not collision:
