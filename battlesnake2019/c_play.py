@@ -34,17 +34,17 @@ b_sum_of_rewards = 0
 game_number = 0
 sum_of_game_length = 0
 size_turn_bonus = 50
-max_turns = 50
+max_turns = 500
 batch_size = 100
 
 h_index = 0
 h = [{
     'win' : 0.0,
-    'loss': -0.2,
+    'loss': -0.05,
     'ate': 0.8,
     'initial': 0.0,
-    'greedy_attack': 0.0,
-    'h_change_option': 5000
+    'greedy_attack': 0.001,
+    'h_change_option': 2500
     },
     {
     'win' : 0.5,
@@ -298,15 +298,15 @@ def run():
             graphs_plots_b[0].append(game_number)
             graphs_plots_b[1].append(b_win)
             graphs_plots_g[0].append(game_number)
-            graphs_plots_g[1].append(sum_of_game_length / batch_size)
+            graphs_plots_g[1].append(sum_of_game_length / graph_update)
             graphs_plots_a_loss[0].append(game_number)
-            graphs_plots_a_loss[1].append(a_sum_of_scores / batch_size)
+            graphs_plots_a_loss[1].append(a_sum_of_scores / graph_update)
             graphs_plots_b_loss[0].append(game_number)
-            graphs_plots_b_loss[1].append(b_sum_of_scores / batch_size)
+            graphs_plots_b_loss[1].append(b_sum_of_scores / graph_update)
             graphs_plots_a_reward[0].append(game_number)
-            graphs_plots_a_reward[1].append(a_sum_of_rewards / batch_size)
+            graphs_plots_a_reward[1].append(a_sum_of_rewards / graph_update)
             graphs_plots_b_reward[0].append(game_number)
-            graphs_plots_b_reward[1].append(b_sum_of_rewards / batch_size)
+            graphs_plots_b_reward[1].append(b_sum_of_rewards / graph_update)
 
             if game_number > h[h_index]['h_change_option'] and h_index == 0:
                 h_index = 1

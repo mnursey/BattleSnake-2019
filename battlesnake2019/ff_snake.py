@@ -46,7 +46,7 @@ class Policy():
         n_hidden = 512
         n_output = 4
 
-        self.gamma = 0.75
+        self.gamma = 0.99
         self.learning_rate = 0.001
 
         self.net = Net(n_feature = n_input, n_hidden = n_hidden, n_output = n_output).to(device)
