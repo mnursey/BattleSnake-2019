@@ -42,9 +42,9 @@ h = [{
     'win' : 0.001,
     'loss': -0.05,
     'ate': 0.8,
-    'initial': 0.0,
-    'greedy_attack': 0.001,
-    'retreat' : -0.002,
+    'initial': 0.00015,
+    'greedy_attack': 0.0001,
+    'retreat' : -0.0002,
     'h_change_option': 2500
     },
     {
@@ -136,14 +136,14 @@ def run():
     original_state = load_initial_state()
 
     ff_a = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size)      
-    ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size)   
+    #ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size)   
     
     while True:
         game_number += 1
 
         # new episode
         ff_a.new_episode()
-        ff_b.new_episode()
+        #ff_b.new_episode()
 
         done = False
 
@@ -215,7 +215,9 @@ def run():
                 if snake['id'] == 'B':
                     state['you'] = snake
                     snakeB = snake
-                    b_move = ff_b.run_ai(state)
+
+                    b_move = snake_random.run_food_ai(state)
+                    #b_move = ff_b.run_ai(state)
 
                     moves.append((b_move, 'B'))
 
@@ -282,7 +284,7 @@ def run():
 
             # set rewards
             ff_a.set_reward(a_reward)
-            ff_b.set_reward(b_reward)
+            #ff_b.set_reward(b_reward)
             a_sum_of_rewards += a_reward
             b_sum_of_rewards += b_reward
 
@@ -292,7 +294,7 @@ def run():
         # update policy
         if game_number % batch_size == 0 and not testing:
             a_sum_of_scores += ff_a.update_policy()
-            b_sum_of_scores += ff_b.update_policy()
+            #b_sum_of_scores += ff_b.update_policy()
 
         sum_of_game_length += state['turn']
 
