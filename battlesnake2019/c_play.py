@@ -48,9 +48,9 @@ h = [{
     'h_change_option': 2500
     },
     {
-    'win' : 1.0,
-    'loss': -1.5,
-    'ate': 0.5,
+    'win' : 5.0,
+    'loss': -5.5,
+    'ate': 1.0,
     'initial': 0.0,
     'greedy_attack': 0.5,
     'retreat' : -0.6,
