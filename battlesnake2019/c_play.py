@@ -4,7 +4,7 @@ import _global
 import matplotlib
 import matplotlib.pyplot as plt
 import json
-import time
+import time 
 import snake2018
 import snake_random
 import ml_trainer_torch
@@ -39,22 +39,22 @@ batch_size = 100
 
 h_index = 0
 h = [{
-    'win' : 0.001,
-    'loss': -0.05,
-    'ate': 0.8,
-    'initial': 0.00015,
-    'greedy_attack': 0.0001,
-    'retreat' : -0.0002,
+    'win' : 5.0,
+    'loss': -5.5,
+    'ate': 1.0,
+    'initial': 0.0,
+    'greedy_attack': 0.5,
+    'retreat' : -0.6,
     'h_change_option': 2500
     },
     {
-    'win' : 0.5,
-    'loss': -1.0,
-    'ate': 0.01,
-    'initial': -0.01,
-    'greedy_attack': 0.1,
-    'retreat' : -0.002,
-    'h_change_option': 25000
+    'win' : 1.0,
+    'loss': -1.5,
+    'ate': 0.5,
+    'initial': 0.0,
+    'greedy_attack': 0.5,
+    'retreat' : -0.6,
+    'h_change_option': 2500
     }
 ]
 
@@ -317,9 +317,9 @@ def run():
             graphs_plots_b_reward[0].append(game_number)
             graphs_plots_b_reward[1].append(b_sum_of_rewards / graph_update)
 
-            '''if game_number > h[h_index]['h_change_option'] and h_index == 0:
+            if game_number > h[h_index]['h_change_option'] and h_index == 0:
                 h_index = 1
-                print('changing scoring')'''
+                print('changing scoring')
 
             a_win = 0
             b_win = 0
