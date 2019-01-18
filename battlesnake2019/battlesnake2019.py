@@ -12,6 +12,7 @@ import json
 import ml_trainer_torch
 import multiprocessing
 import c_play
+import s_play
 
 running = False
 
@@ -73,7 +74,7 @@ def RunLogServer(thread_name):
 
 def RunSimGame(thread_name):
     #t0 = time.clock()
-    c_play.run()
+    s_play.run()
     #sim_game.run()
     #t1 = time.clock()
     #total = t1-t0

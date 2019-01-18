@@ -39,7 +39,7 @@ class Net(torch.nn.Module):
         return x
 
 class Policy():
-    def __init__(self, board_width, board_height, batch_size):
+    def __init__(self, board_width, board_height, batch_size, training = False, path=None):
         super(Policy, self).__init__()
 
         n_input = 9 * 81 + 4
@@ -59,6 +59,14 @@ class Policy():
         self.ep_reward_episode = []
 
         self.loss_history = []
+
+        self.training = training
+
+        if training:
+            self.net.eval()
+
+        if path != None:
+            self.load(path)
 
         print("Policy: Gamma:{} Learning Rate:{}".format(self.gamma, self.learning_rate))
         print(self.net)
@@ -247,6 +255,26 @@ class Policy():
 
         return out
 
+    def run_ai_test(self, input):
+        model_input, facing = self.transform_input(input)
+        model_input = torch.from_numpy(model_input).to(device)
+        out = self.net(model_input)
+        c = Categorical(out)
+        action = c.sample()
+
+        action = (action + facing) % 4
+
+        if(action == 0):
+            out = 'up'
+        elif(action == 1):
+            out = 'right'
+        elif(action == 2):
+            out = 'down'
+        elif(action == 3):
+            out = 'left'
+
+        return out
+
     def set_reward(self, reward):
         self.ep_reward_episode[-1].append(reward)
         return
@@ -254,6 +282,13 @@ class Policy():
     def new_episode(self):
         self.ep_policy_history.append([])
         self.ep_reward_episode.append([])
+        return
+
+    def load(self, path):
+        saved_state = torch.load(path)
+        self.net.load_state_dict(saved_state['state_dict'])
+        optimizer = torch.optim.Adam(self.net.parameters(), lr=self.learning_rate)
+        optimizer.load_state_dict(saved_state['optimizer'])
         return
 
     def save(self):
@@ -267,6 +302,7 @@ class Policy():
             'random_chars'  : self.random_chars
         }
 
-        torch.save(state, './models/convnet/' + self.random_chars + str(self.episode) + '.pth')
+        path = './models/convnet/' + self.random_chars + str(self.episode) + '.pth'
+        torch.save(state, path)
 
-        return
+        return path

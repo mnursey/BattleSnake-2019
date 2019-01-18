@@ -267,9 +267,10 @@ class ConvAI():
             'random_chars'  : self.random_chars
         }
 
-        torch.save(state, './models/convnet/' + self.random_chars + str(self.episode) + '.pth')
+        path = './models/convnet/' + self.random_chars + str(self.episode) + '.pth'
+        torch.save(state, path)
 
-        return
+        return path
 
 if __name__ == '__main__':
    run()
