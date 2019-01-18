@@ -38,7 +38,7 @@ max_turns = 500
 batch_size = 100
 
 gpo = 0
-gpo_max = 5000
+gpo_max = 25000
 
 h_index = 0
 h = [{
@@ -46,7 +46,7 @@ h = [{
     'loss': -1.0,
     'ate': 0.0,
     'initial': 0.0,
-    'greedy_attack': 0.0,
+    'greedy_attack': 0.1,
     'retreat' : 0.0,
     'h_change_option': 250000
     },
@@ -140,17 +140,13 @@ def run():
     testing = False
     original_state = load_initial_state()
 
-    path = './models/specialmodels/RDipc80000.pth'
+    path = './models/specialmodels/yehCj35000.pth'
     ff_a = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, False, path=path)      
     ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)   
     
     while True:
         game_number += 1
         gpo += 1
-        if gpo > gpo_max:
-            gpo = 0
-            path = ff_a.save()
-            ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)  
             
         # new episode
         ff_a.new_episode()
@@ -305,6 +301,11 @@ def run():
             a_sum_of_scores += ff_a.update_policy()
 
         sum_of_game_length += state['turn']
+
+        if a_win > 80 or gpo > gpo_max:
+            gpo = 0
+            path = ff_a.save()
+            ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)  
 
         if game_number % graph_update == 0:
 
