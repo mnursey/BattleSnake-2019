@@ -14,7 +14,7 @@ import random
 import string
 import collections
 
-if torch.cuda.is_available():
+if torch.cuda.is_available() and False:
     device = torch.device('cuda')
     print('using cuda')
 else:
@@ -27,14 +27,14 @@ class Net(torch.nn.Module):
 
         self.h_1 = torch.nn.Linear(n_feature, n_hidden)      # hidden layer
         self.h_2 = torch.nn.Linear(n_hidden, n_hidden)      # hidden layer
-        self.h_3 = torch.nn.Linear(n_hidden, n_hidden)      # hidden layer
+        #self.h_3 = torch.nn.Linear(n_hidden, n_hidden)      # hidden layer
         self.output = torch.nn.Linear(n_hidden, n_output)      # hidden layer
 
     def forward(self, x):
         x = x.float()
         x = F.elu(self.h_1(x))
         x = F.elu(self.h_2(x))
-        x = F.elu(self.h_3(x))
+        #x = F.elu(self.h_3(x))
         x = F.softmax(self.output(x), dim=-1)
         return x
 
@@ -43,11 +43,11 @@ class Policy():
         super(Policy, self).__init__()
 
         n_input = 9 * 81 + 4
-        n_hidden = 512
+        n_hidden = 100
         n_output = 4
 
         self.gamma = 0.99
-        self.learning_rate = 0.001
+        self.learning_rate = 0.0005
 
         self.net = Net(n_feature = n_input, n_hidden = n_hidden, n_output = n_output).to(device)
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr = self.learning_rate)

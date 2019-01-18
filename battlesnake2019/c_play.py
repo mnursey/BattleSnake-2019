@@ -39,22 +39,22 @@ batch_size = 100
 
 h_index = 0
 h = [{
-    'win' : 5.0,
-    'loss': -5.5,
-    'ate': 1.0,
-    'initial': 0.0,
-    'greedy_attack': 0.5,
-    'retreat' : -0.6,
-    'h_change_option': 2500
+    'win' : 1.0,
+    'loss': -1.0,
+    'ate': 0.0,
+    'initial': 0.0001,
+    'greedy_attack': 0.01,
+    'retreat' : 0.0,
+    'h_change_option': 250000
     },
-    {
-    'win' : 5.0,
-    'loss': -5.5,
-    'ate': 1.0,
-    'initial': 0.0,
-    'greedy_attack': 0.5,
-    'retreat' : -0.6,
-    'h_change_option': 2500
+	{
+    'win' : 1.0,
+    'loss': -1.0,
+    'ate': 0.0,
+    'initial': 0.0001,
+    'greedy_attack': 0.01,
+    'retreat' : 0.0,
+    'h_change_option': 250000
     }
 ]
 
@@ -216,7 +216,7 @@ def run():
                     state['you'] = snake
                     snakeB = snake
 
-                    b_move = snake_random.run_food_ai(state)
+                    b_move = snake_random.run_ai(state)
                     #b_move = ff_b.run_ai(state)
 
                     moves.append((b_move, 'B'))
