@@ -140,9 +140,9 @@ def run():
     testing = False
     original_state = load_initial_state()
 
-    path = './models/specialmodels/ykSpW45000.pth'
-    ff_a = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, False)      
-    ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True)   
+    path = './models/specialmodels/killsbsnake80.pth'
+    ff_a = ff_snake.Policy(batch_size, False, path=path)      
+    ff_b = ff_snake.Policy(batch_size, True, path=path)   
     
     while True:
         game_number += 1
@@ -157,7 +157,15 @@ def run():
         state = pickle.loads(pickle.dumps(original_state, -1))
 
         pos_flip = random.randint(0, 1)
-        positions = [(1,1), (5,5)]
+
+        board_sizes = [7, 11, 19]
+        size = random.randint(0, len(board_sizes) - 1)
+        size = board_sizes[size]
+
+        state['board']['width'] = size
+        state['board']['height'] = size
+
+        positions = [(1, 1), (size - 2, size - 2)]
 
         if pos_flip == 0:
             snake = state['board']['snakes'][0]
@@ -182,6 +190,14 @@ def run():
                 for body in snake['body']:
                     body['x'] = positions[0][0]
                     body['y'] = positions[0][1]
+
+        if size > 7:
+            state['board']['food'].append({'x': 0, 'y': 0})
+            state['board']['food'].append({'x': 0, 'y': 0})
+            if size > 11:
+                state['board']['food'].append({'x': 0, 'y': 0})
+                state['board']['food'].append({'x': 0, 'y': 0})
+                state['board']['food'].append({'x': 0, 'y': 0})
 
         # position food randomly
         for food in state['board']['food']:
@@ -209,8 +225,10 @@ def run():
 
             snakeA = None
             snakeB = None
+            snakeC = None
             a_move = None
             b_move = None
+            c_move = None
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
                     state['you'] = snake
@@ -222,10 +240,18 @@ def run():
                     state['you'] = snake
                     snakeB = snake
 
-                    b_move = snake2018.run_ai(state)
-                    #b_move = ff_b.run_ai_test(state)
+                    #b_move = snake2018.run_ai(state)
+                    b_move = ff_b.run_ai_test(state)
 
                     moves.append((b_move, 'B'))
+
+                if snake['id'] == 'C':
+                    state['you'] = snake
+                    snakeC = snake
+
+                    b_move = snake2018.run_ai(state)
+
+                    moves.append((b_move, 'C'))
 
             greedy_attack_moves_a = snake_random.move_towards_list(snakeA['body'][0]['x'], snakeA['body'][0]['y'], snakeB['body'][0]['x'], snakeB['body'][0]['y'])
             greedy_attack_moves_b = snake_random.move_towards_list(snakeB['body'][0]['x'], snakeB['body'][0]['y'], snakeA['body'][0]['x'], snakeA['body'][0]['y'])
@@ -304,9 +330,9 @@ def run():
 
         if a_win > 80 or gpo > gpo_max:
             gpo = 0
-            #path = ff_a.save()
-            #ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)
-            #ff_a.reset_optimizer()
+            path = ff_a.save()
+            ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)
+            ff_a.reset_optimizer()
 
         if game_number % graph_update == 0:
 

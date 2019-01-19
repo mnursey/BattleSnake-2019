@@ -105,8 +105,8 @@ class GameView:
                 if snake['id'] == 'C':
                     snakeColor = self.CSnakeColor
 
-                health_bar_bg_rect = pygame.Rect(self.health_bar_pos_x, self.health_bar_pos_y + self.health_bar_height * _ * 1.5, self.health_bar_width, self.health_bar_height)
-                health_bar_rect = pygame.Rect(self.health_bar_pos_x, self.health_bar_pos_y + self.health_bar_height * _ * 1.5, self.health_bar_width * snake['health'] / 100, self.health_bar_height)
+                health_bar_bg_rect = pygame.Rect(self.health_bar_pos_x + self.boardSizeX * 15, self.health_bar_pos_y + self.health_bar_height * _ * 1.5, self.health_bar_width, self.health_bar_height)
+                health_bar_rect = pygame.Rect(self.health_bar_pos_x + self.boardSizeX * 15, self.health_bar_pos_y + self.health_bar_height * _ * 1.5, self.health_bar_width * snake['health'] / 100, self.health_bar_height)
                 pygame.draw.rect(self._window, self.defaultSquareColor, health_bar_bg_rect)
                 pygame.draw.rect(self._window, snakeColor, health_bar_rect)
 

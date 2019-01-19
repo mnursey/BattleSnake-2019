@@ -39,7 +39,7 @@ class Net(torch.nn.Module):
         return x
 
 class Policy():
-    def __init__(self, board_width, board_height, batch_size, training = False, path=None):
+    def __init__(self, batch_size, training = False, path=None):
         super(Policy, self).__init__()
 
         n_input = 9 * 81 + 4
