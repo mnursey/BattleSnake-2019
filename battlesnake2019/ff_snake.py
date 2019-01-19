@@ -80,6 +80,10 @@ class Policy():
         print('Random Save ID: ' + self.random_chars)
 
         return
+		
+    def reset_optimizer(self):
+        self.optimizer = torch.optim.Adam(self.net.parameters(), lr = self.learning_rate)
+        return
 
     def update_policy(self):
         R = 0
