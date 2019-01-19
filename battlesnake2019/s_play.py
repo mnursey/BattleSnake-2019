@@ -141,8 +141,8 @@ def run():
     original_state = load_initial_state()
 
     path = './models/specialmodels/ykSpW45000.pth'
-    ff_a = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, False, path=path)      
-    ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)   
+    ff_a = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, False)      
+    ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True)   
     
     while True:
         game_number += 1
@@ -150,7 +150,6 @@ def run():
             
         # new episode
         ff_a.new_episode()
-        #ff_b.new_episode()
 
         done = False
 
