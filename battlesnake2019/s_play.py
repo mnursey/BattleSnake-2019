@@ -140,7 +140,7 @@ def run():
     testing = False
     original_state = load_initial_state()
 
-    path = './models/specialmodels/ykSpW45000.pth'
+    path = './models/specialmodels/hHwJY45000.pth'
     ff_a = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, False, path=path)      
     ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)   
     
@@ -223,7 +223,8 @@ def run():
                     state['you'] = snake
                     snakeB = snake
 
-                    b_move = ff_b.run_ai_test(state)
+                    b_move = snake2018.run_ai(state)
+                    #b_move = ff_b.run_ai_test(state)
 
                     moves.append((b_move, 'B'))
 
@@ -304,9 +305,9 @@ def run():
 
         if a_win > 80 or gpo > gpo_max:
             gpo = 0
-            path = ff_a.save()
-            ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)
-            ff_a.reset_optimizer()
+            #path = ff_a.save()
+            #ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)
+            #ff_a.reset_optimizer()
 
         if game_number % graph_update == 0:
 
