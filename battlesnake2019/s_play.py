@@ -27,6 +27,7 @@ graphs_plots_a_reward = [[0],[0]]
 graphs_plots_b_reward = [[0],[0]]
 a_win = 0
 b_win = 0
+c_win = 0
 a_sum_of_scores = 0
 b_sum_of_scores = 0
 a_sum_of_rewards = 0
@@ -34,30 +35,30 @@ b_sum_of_rewards = 0
 game_number = 0
 sum_of_game_length = 0
 size_turn_bonus = 50
-max_turns = 500
+max_turns = 50000
 batch_size = 100
 
-gpo = 0
-gpo_max = 25000
+#board_sizes = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 15, 16, 17, 18, 19, 19]
+board_sizes = [7, 7, 7, 7, 8, 9, 10, 11, 11, 11, 11, 12, 13, 14, 16, 17, 18, 19]
 
 h_index = 0
 h = [{
-    'win' : 1.0,
+    'win' : 0.0,
     'loss': -1.0,
-    'ate': 0.0,
+    'tie': -0.9,
+    'ate': 0.5,
     'initial': 0.0,
     'greedy_attack': 0.0,
-    'retreat' : 0.0,
-    'h_change_option': 250000
+    'retreat' : 0.0
     },
-	{
+     {
     'win' : 1.0,
     'loss': -1.0,
+    'tie': -0.9,
     'ate': 0.0,
     'initial': 0.0,
     'greedy_attack': 0.0,
-    'retreat' : 0.0,
-    'h_change_option': 250000
+    'retreat' : 0.0
     }
 ]
 
@@ -115,6 +116,7 @@ def run():
 
     global a_win
     global b_win
+    global c_win
     global a_sum_of_scores
     global b_sum_of_scores
     global a_sum_of_rewards
@@ -135,18 +137,16 @@ def run():
     global h
     global h_index
 
-    global gpo
-
     testing = False
     original_state = load_initial_state()
 
-    path = './models/specialmodels/killsbsnake80.pth'
-    ff_a = ff_snake.Policy(batch_size, False, path=path)      
-    ff_b = ff_snake.Policy(batch_size, True, path=path)   
+    path = './models/specialmodels/15R_version4.pth'
+    ff_a = ff_snake.Policy(batch_size, path=path)
+    #ff_a.reset_optimizer()
+    ff_b = ff_snake.Policy(batch_size, path=path)   
     
     while True:
         game_number += 1
-        gpo += 1
             
         # new episode
         ff_a.new_episode()
@@ -156,9 +156,7 @@ def run():
         # copy original state
         state = pickle.loads(pickle.dumps(original_state, -1))
 
-        pos_flip = random.randint(0, 1)
 
-        board_sizes = [7, 11, 19]
         size = random.randint(0, len(board_sizes) - 1)
         size = board_sizes[size]
 
@@ -167,37 +165,69 @@ def run():
 
         positions = [(1, 1), (size - 2, size - 2)]
 
-        if pos_flip == 0:
-            snake = state['board']['snakes'][0]
+        # add extra snakes
+        if random.randint(0, 100) > 50:
+            state['board']['snakes'].append({
+            "id": "C",
+            "name": "Snake C",
+            "health": 100,
+            "body": [
+                {
+                "x": 5,
+                "y": 5
+                },
+                {
+                "x": 5,
+                "y": 5
+                },
+                {
+                "x": 5,
+                "y": 5
+                }
+            ]
+            })
 
+            positions.append((1, size - 2))
+
+            if random.randint(0, 100) > 75:
+                state['board']['snakes'].append({
+                "id": "D",
+                "name": "Snake D",
+                "health": 100,
+                "body": [
+                    {
+                    "x": 5,
+                    "y": 5
+                    },
+                    {
+                    "x": 5,
+                    "y": 5
+                    },
+                    {
+                    "x": 5,
+                    "y": 5
+                    }
+                ]
+                })
+
+                positions.append((size - 2, 1))
+
+        # Position snakes in corners
+        ##(1, 1), (size - 2, size - 2), (1, size - 2)
+
+
+        random.shuffle(positions)
+
+        for p, snake in enumerate(state['board']['snakes']):
             for body in snake['body']:
-                body['x'] = positions[0][0]
-                body['y'] = positions[0][1]
+                body['x'] = positions[p][0]
+                body['y'] = positions[p][1]
 
-            if len(state['board']['snakes']) > 1:
-                snake = state['board']['snakes'][1]
-                for body in snake['body']:
-                    body['x'] = positions[1][0]
-                    body['y'] = positions[1][1]
-        else:
-            snake = state['board']['snakes'][0]
-            for body in snake['body']:
-                body['x'] = positions[1][0]
-                body['y'] = positions[1][1]
+        # food
+        r_food = random.randint(1, size - 4)
 
-            if len(state['board']['snakes']) > 1:
-                snake = state['board']['snakes'][1]
-                for body in snake['body']:
-                    body['x'] = positions[0][0]
-                    body['y'] = positions[0][1]
-
-        if size > 7:
+        for i in range(r_food):
             state['board']['food'].append({'x': 0, 'y': 0})
-            state['board']['food'].append({'x': 0, 'y': 0})
-            if size > 11:
-                state['board']['food'].append({'x': 0, 'y': 0})
-                state['board']['food'].append({'x': 0, 'y': 0})
-                state['board']['food'].append({'x': 0, 'y': 0})
 
         # position food randomly
         for food in state['board']['food']:
@@ -226,9 +256,14 @@ def run():
             snakeA = None
             snakeB = None
             snakeC = None
+            snakeD = None
             a_move = None
             b_move = None
             c_move = None
+            d_move = None
+
+            #grid = snake_random.generate_grid(state)
+
             for snake in state['board']['snakes']:
                 if snake['id'] == 'A':
                     state['you'] = snake
@@ -240,7 +275,7 @@ def run():
                     state['you'] = snake
                     snakeB = snake
 
-                    #b_move = snake2018.run_ai(state)
+                    #b_move = snake_random.run_ai(state)
                     b_move = ff_b.run_ai_test(state)
 
                     moves.append((b_move, 'B'))
@@ -249,19 +284,28 @@ def run():
                     state['you'] = snake
                     snakeC = snake
 
-                    b_move = snake2018.run_ai(state)
+                    c_move = ff_b.run_ai_test(state)
+                    #c_move = snake_random.run_ai(state)
+                    #c_move = snake_random.run_ai(state)
+                    moves.append((c_move, 'C'))
 
-                    moves.append((b_move, 'C'))
+                if snake['id'] == 'D':
+                    state['you'] = snake
+                    snakeD = snake
 
-            greedy_attack_moves_a = snake_random.move_towards_list(snakeA['body'][0]['x'], snakeA['body'][0]['y'], snakeB['body'][0]['x'], snakeB['body'][0]['y'])
-            greedy_attack_moves_b = snake_random.move_towards_list(snakeB['body'][0]['x'], snakeB['body'][0]['y'], snakeA['body'][0]['x'], snakeA['body'][0]['y'])
+                    d_move = ff_b.run_ai_test(state)
+                    moves.append((d_move, 'D'))
 
             state = engine.Run(state, moves) 
 
             a_found = False
             b_found = False
+            c_found = False
+            d_found = False
             a_ate = False
             b_ate = False
+            c_ate = False
+            d_ate = False
 
             a_reward = h[h_index]['initial']
             b_reward = h[h_index]['initial']
@@ -279,45 +323,38 @@ def run():
                     b_found = True
                     b_length = len(snake['body'])
                     if snake['health'] == 100:
-                        b_ate = True        
+                        b_ate = True    
+                        
+                if snake['id'] == 'C':
+                    c_found = True
+                    if snake['health'] == 100:
+                        c_ate = True      
+
+                if snake['id'] == 'D':
+                    d_found = True
+                    if snake['health'] == 100:
+                        d_ate = True            
                         
             if a_ate:
                 a_reward += h[h_index]['ate']
-            if b_ate:
-                b_reward += h[h_index]['ate']
 
-            if a_move in greedy_attack_moves_a:
-                a_reward +=h [h_index]['greedy_attack']
-            else:
-                a_reward +=h [h_index]['retreat']
-
-            if b_move in greedy_attack_moves_b:
-                b_reward +=h [h_index]['greedy_attack']
-            else:
-                b_reward +=h [h_index]['retreat']
-
-            if a_found and not b_found:
+            if a_found and not b_found and not c_found and not d_found:
                 a_win += 1
                 a_reward += h[h_index]['win']
-                b_reward = h[h_index]['loss']
                 done = True
 
-            if b_found and not a_found:
-                b_win += 1
+            if not a_found:
                 a_reward = h[h_index]['loss']
-                b_reward += h[h_index]['win']
                 done = True   
 
-
-            if state['turn'] > max_turns + size_turn_bonus * max(max(a_length - 3, 0), max(b_length - 3, 0)) or (not a_found and not b_found):
-                a_reward = h[h_index]['loss']
-                b_reward = h[h_index]['loss']
+            if state['turn'] > max_turns or (not a_found and not b_found and not c_found and not d_found):
+                a_reward = h[h_index]['tie']
                 done = True
 
             # set rewards
             ff_a.set_reward(a_reward)
             a_sum_of_rewards += a_reward
-            b_sum_of_rewards += b_reward
+            #b_sum_of_rewards += b_reward
 
             _global.board_json_list = state
             RunGraph()
@@ -328,10 +365,9 @@ def run():
 
         sum_of_game_length += state['turn']
 
-        if a_win > 80 or gpo > gpo_max:
-            gpo = 0
+        if a_win > 80:
             path = ff_a.save()
-            ff_b = ff_snake.Policy(original_state['board']['width'], original_state['board']['height'] , batch_size, True, path=path)
+            ff_b = ff_snake.Policy(batch_size, True, path=path)
             ff_a.reset_optimizer()
 
         if game_number % graph_update == 0:
@@ -353,12 +389,9 @@ def run():
             graphs_plots_b_reward[0].append(game_number)
             graphs_plots_b_reward[1].append(b_sum_of_rewards / graph_update)
 
-            if game_number > h[h_index]['h_change_option'] and h_index == 0:
-                h_index = 1
-                print('changing scoring')
-
             a_win = 0
             b_win = 0
+            c_win = 0
             a_sum_of_scores = 0
             b_sum_of_scores = 0
             a_sum_of_rewards = 0
@@ -369,6 +402,8 @@ def run():
     return
 
 def load_initial_state():
+    # initial_game_food.json
+    # initial_game.json
     file = open('./initial_game.json', 'r')
     json_ = file.read()
     obj_ = json.loads(json_)

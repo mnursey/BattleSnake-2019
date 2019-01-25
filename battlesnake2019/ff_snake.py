@@ -13,8 +13,9 @@ import matplotlib.pyplot as plt
 import random
 import string
 import collections
+import snake_random
 
-if torch.cuda.is_available() and False:
+if torch.cuda.is_available():
     device = torch.device('cuda')
     print('using cuda')
 else:
@@ -42,8 +43,8 @@ class Policy():
     def __init__(self, batch_size, training = False, path=None):
         super(Policy, self).__init__()
 
-        n_input = 9 * 81 + 4
-        n_hidden = 100
+        n_input = 2054
+        n_hidden = 230
         n_output = 4
 
         self.gamma = 0.99
@@ -80,7 +81,7 @@ class Policy():
         print('Random Save ID: ' + self.random_chars)
 
         return
-		
+
     def reset_optimizer(self):
         self.optimizer = torch.optim.Adam(self.net.parameters(), lr = self.learning_rate)
         return
@@ -128,33 +129,33 @@ class Policy():
             print('Trainer: episode ' + str(self.episode) + ' ' + str(l) + ' ' + str(episode_avg))
             self.loss_history = []
 
-        '''if self.episode % 5000 == 0:
-            self.save()'''
-
         if l == 0:
             print("ff - Zero Loss")
 
-        
         if self.episode % 5000 == 0:
             self.save()
 
         return l
 
     def transform_input(self, input):
-        window_size = 9
+        window_size = 15
 
         facing = 0
         my_stats = np.array([input['you']['health'] / 100, len(input['you']['body'])])
-        en_stats = np.array([0, 0])
+        en_stats_health = np.full((window_size, window_size), 0)
+        en_stats_length = np.full((window_size, window_size), 0)
         walls = np.full((window_size, window_size), 0)
         friendly = np.full((window_size, window_size), 0)
         my_tail = np.full((window_size, window_size), 0)
         enemy = np.full((window_size, window_size), 0)
         enemy_head = np.full((window_size, window_size), 0)
         en_tails = np.full((window_size, window_size), 0)
-        big_en = np.full((window_size, window_size), 0)
-        sml_en = np.full((window_size, window_size), 0)
+        #big_en = np.full((window_size, window_size), 0)
+        #sml_en = np.full((window_size, window_size), 0)
         food = np.full((window_size, window_size), 0)
+        en_radar = np.full((3, 3), 0)
+        tail_radar = np.full((3, 3), 0)
+        food_radar = np.full((3, 3), 0)
 
         centre_x = input['you']['body'][0]['x']
         centre_y = input['you']['body'][0]['y'] 
@@ -178,28 +179,90 @@ class Policy():
                 if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
                     if snake['id'] == input['you']['id']:
                         if i == s_length - 1:
-                            my_tail[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                            my_tail[c_y + window_size // 2, c_x + window_size // 2] += 1;
                         else:
-                            friendly[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                            friendly[c_y + window_size // 2, c_x + window_size // 2] += 1;
                     else:
                         if i == s_length - 1:
                             en_tails[c_y + window_size // 2, c_x + window_size // 2] = 1;
+
+                            if c_x < 0:
+                                if c_y < 0:
+                                    tail_radar[0, 0] += 1
+                                elif c_y > 0:
+                                    tail_radar[0, 2] += 1
+                                else:
+                                    tail_radar[0, 1] += 1
+                            elif c_x > 0:
+                                if c_y < 0:
+                                    tail_radar[2, 0] += 1
+                                elif c_y > 0:
+                                    tail_radar[2, 2] += 1
+                                else:
+                                    tail_radar[2, 1] += 1
+                            else:
+                                if c_y < 0:
+                                    tail_radar[1, 0] += 1
+                                else:
+                                    tail_radar[1, 2] += 1
                         else:
                             enemy[c_y + window_size // 2, c_x + window_size // 2] = 1;
 
                         if i == 0:
                             enemy_head[c_y + window_size // 2, c_x + window_size // 2] = 1;
-                            en_stats = np.array([snake['health'] / 100, len(snake['body'])])
-                            if len(snake['body']) < len(input['you']['body']):
-                                sml_en[c_x + window_size // 2, c_y + window_size // 2] = 1;
+                            en_stats_health[c_x + window_size // 2, c_y + window_size // 2] = snake['health'] / 100;
+                            en_stats_length[c_x + window_size // 2, c_y + window_size // 2] = len(snake['body'])
+
+                            if c_x < 0:
+                                if c_y < 0:
+                                    en_radar[0, 0] += 1
+                                elif c_y > 0:
+                                    en_radar[0, 2] += 1
+                                else:
+                                    en_radar[0, 1] += 1
+                            elif c_x > 0:
+                                if c_y < 0:
+                                    en_radar[2, 0] += 1
+                                elif c_y > 0:
+                                    en_radar[2, 2] += 1
+                                else:
+                                    en_radar[2, 1] += 1
                             else:
-                                big_en[c_y + window_size // 2, c_x + window_size // 2] = 1;
+                                if c_y < 0:
+                                    en_radar[1, 0] += 1
+                                else:
+                                    en_radar[1, 2] += 1
+
+                            '''if len(snake['body']) < len(input['you']['body']):
+                                sml_en[c_x + window_size // 2, c_y + window_size // 2] += 1;
+                            else:
+                                big_en[c_y + window_size // 2, c_x + window_size // 2] += 1;'''
 
         # food
         for f in input['board']['food']:
             c_x = f['x'] - centre_x
             c_y = f['y'] - centre_y
             
+            if c_x < 0:
+                if c_y < 0:
+                    food_radar[0, 0] += 1
+                elif c_y > 0:
+                    food_radar[0, 2] += 1
+                else:
+                    food_radar[0, 1] += 1
+            elif c_x > 0:
+                if c_y < 0:
+                    food_radar[2, 0] += 1
+                elif c_y > 0:
+                    food_radar[2, 2] += 1
+                else:
+                    food_radar[2, 1] += 1
+            else:
+                if c_y < 0:
+                    food_radar[1, 0] += 1
+                else:
+                    food_radar[1, 2] += 1
+                
             if c_x <= window_size // 2 and c_y <= window_size // 2 and c_x >= -window_size // 2 and c_y >= -window_size // 2:
                     food[(c_y + window_size // 2), (c_x + window_size // 2)] = 1;
 
@@ -216,7 +279,7 @@ class Policy():
         if neck['x'] > head['x']:
             facing = 3
 
-        walls = np.rot90(walls, k=facing)
+        '''walls = np.rot90(walls, k=facing)
         friendly = np.rot90(friendly, k=facing)
         my_tail = np.rot90(my_tail, k=facing)
         enemy = np.rot90(enemy, k=facing)
@@ -225,15 +288,14 @@ class Policy():
         big_en = np.rot90(big_en, k=facing)
         sml_en = np.rot90(sml_en, k=facing)
         food = np.rot90(food, k=facing)
+        en_stats_health = np.rot90(en_stats_health, k=facing)
+        en_stats_length = np.rot90(en_stats_length, k=facing)'''
 
-        '''print('walls')
-        print(walls)
-        print('friendly')
-        print(friendly)
-        print('food')
-        print(food)'''
+        group = np.rot90(np.array([walls, friendly, my_tail, enemy, enemy_head, en_tails, food, en_stats_health, en_stats_length]), k=facing, axes=(1, 2))
+        group = np.append(group, np.rot90(np.array([en_radar, tail_radar, food_radar]), k=facing, axes=(1, 2)))
+        out = np.append(group.flatten(), my_stats)
 
-        out = np.append( np.array([walls, friendly, my_tail, enemy, enemy_head, en_tails, big_en, sml_en, food]).flatten(), np.array([my_stats, en_stats]).flatten())
+        #out = np.append( np.array([walls, friendly, my_tail, enemy, enemy_head, en_tails, big_en, sml_en, food, en_stats_health, en_stats_length]).flatten(), my_stats)
         return out, facing
 
     def run_ai(self, input):
@@ -259,7 +321,7 @@ class Policy():
 
         return out
 
-    def run_ai_test(self, input):
+    def run_ai_test(self, input, grid=None):
         model_input, facing = self.transform_input(input)
         model_input = torch.from_numpy(model_input).to(device)
         out = self.net(model_input)
@@ -276,6 +338,12 @@ class Policy():
             out = 'down'
         elif(action == 3):
             out = 'left'
+
+        if grid is not None:
+            f_moves = snake_random.get_free_moves(input, grid)
+            f_m_length = len(f_moves)
+            if f_m_length > 0 and out not in f_moves:
+                out = f_moves[random.randint(0, f_m_length - 1)]
 
         return out
 

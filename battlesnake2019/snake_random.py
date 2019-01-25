@@ -5,8 +5,10 @@ WALL = 1
 SNAKE = 2
 FOOD = 3
 TAIL = 4
+DOUBLE = TAIL + SNAKE
 
-OBSTACLES = [WALL, SNAKE, TAIL]
+OBSTACLES = [WALL, SNAKE, DOUBLE]
+FREE = [EMPTY, TAIL]
 
 def generate_grid(state):
     grid = [[0 for col in range(state['board']['height'])] for row in range(state['board']['width'])]
@@ -17,7 +19,7 @@ def generate_grid(state):
     for snake in state['board']['snakes']:
         for coord in snake['body']:
             grid[coord['x']][coord['y']] = SNAKE
-        grid[snake['body'][-1]['x']][snake['body'][-1]['y']] = TAIL
+        grid[snake['body'][-1]['x']][snake['body'][-1]['y']] += TAIL
     return grid
 
 def get_free_moves(state, grid):
@@ -25,19 +27,19 @@ def get_free_moves(state, grid):
     head = state['you']['body'][0]
 
     if head['x'] + 1 < state['board']['width']:
-        if(grid[head['x'] + 1][head['y']] is EMPTY):
+        if(grid[head['x'] + 1][head['y']] in FREE):
             options.append('right')
 
     if head['x'] - 1 >= 0:
-        if(grid[head['x'] - 1][head['y']] is EMPTY):
+        if(grid[head['x'] - 1][head['y']] in FREE):
             options.append('left')
 
     if head['y'] - 1 >= 0:
-        if(grid[head['x']][head['y'] - 1] is EMPTY):
+        if(grid[head['x']][head['y'] - 1] in FREE):
             options.append('up')
 
     if head['y'] + 1 < state['board']['height']:
-        if(grid[head['x']][head['y'] + 1] is EMPTY):
+        if(grid[head['x']][head['y'] + 1] in FREE):
             options.append('down')
 
     return options

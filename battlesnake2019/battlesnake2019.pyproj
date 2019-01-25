@@ -79,6 +79,9 @@
     <Compile Include="snake_random.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="s_b_play.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="s_play.py">
       <SubType>Code</SubType>
     </Compile>
