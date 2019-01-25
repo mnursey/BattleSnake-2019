@@ -15,7 +15,7 @@ import string
 import collections
 import snake_random
 
-if torch.cuda.is_available():
+if torch.cuda.is_available() and False:
     device = torch.device('cuda')
     print('using cuda')
 else:
