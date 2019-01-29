@@ -35,13 +35,15 @@ b_sum_of_rewards = 0
 game_number = 0
 sum_of_game_length = 0
 size_turn_bonus = 50
-max_turns = 50000
+max_turns = 500000
 batch_size = 100
 
-#board_sizes = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 15, 16, 17, 18, 19, 19]
-board_sizes = [7, 7, 7, 7, 8, 9, 10, 11, 11, 11, 11, 12, 13, 14, 16, 17, 18, 19]
+n_updates = 0
 
-h_index = 0
+#board_sizes = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 15, 16, 17, 18, 19, 19]
+board_sizes = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19]
+
+h_index = 1
 h = [{
     'win' : 0.0,
     'loss': -1.0,
@@ -56,7 +58,7 @@ h = [{
     'loss': -1.0,
     'tie': -0.9,
     'ate': 0.0,
-    'initial': 0.0,
+    'initial': -0.0001,
     'greedy_attack': 0.0,
     'retreat' : 0.0
     }
@@ -134,16 +136,18 @@ def run():
     global graphs_plots_a_reward
     global graphs_plots_b_reward 
 
+    global n_updates
+    
     global h
     global h_index
 
     testing = False
     original_state = load_initial_state()
 
-    path = './models/specialmodels/15R_version4.pth'
-    ff_a = ff_snake.Policy(batch_size, path=path)
+    path = './models/specialmodels/version_3_8.pth'
+    ff_a = ff_snake.Policy(batch_size, path=path, training = True)
     #ff_a.reset_optimizer()
-    ff_b = ff_snake.Policy(batch_size, path=path)   
+    ff_b = ff_snake.Policy(batch_size, path=path, training = False)   
     
     while True:
         game_number += 1
@@ -189,7 +193,7 @@ def run():
 
             positions.append((1, size - 2))
 
-            if random.randint(0, 100) > 75:
+            if random.randint(0, 100) > 50:
                 state['board']['snakes'].append({
                 "id": "D",
                 "name": "Snake D",
@@ -224,7 +228,7 @@ def run():
                 body['y'] = positions[p][1]
 
         # food
-        r_food = random.randint(1, size - 4)
+        r_food = random.randint(3, size - 4)
 
         for i in range(r_food):
             state['board']['food'].append({'x': 0, 'y': 0})
@@ -293,7 +297,9 @@ def run():
                     state['you'] = snake
                     snakeD = snake
 
+                    #d_move = snake_random.run_ai(state)
                     d_move = ff_b.run_ai_test(state)
+                    #d_move = snake2018.run_ai(state)
                     moves.append((d_move, 'D'))
 
             state = engine.Run(state, moves) 
@@ -365,14 +371,15 @@ def run():
 
         sum_of_game_length += state['turn']
 
-        if a_win > 80:
+        if a_win > 70:
             path = ff_a.save()
             ff_b = ff_snake.Policy(batch_size, True, path=path)
-            ff_a.reset_optimizer()
-
+            #ff_a.reset_optimizer()
+            n_updates += 1
+            
         if game_number % graph_update == 0:
 
-            print('Sim: ' + str(a_win) + '/' + str(b_win))
+            print('Sim: ' + str(a_win) + '/' + str(n_updates))
             
             graphs_plots_a[0].append(game_number)
             graphs_plots_a[1].append(a_win)
@@ -387,8 +394,8 @@ def run():
             graphs_plots_a_reward[0].append(game_number)
             graphs_plots_a_reward[1].append(a_sum_of_rewards / graph_update)
             graphs_plots_b_reward[0].append(game_number)
-            graphs_plots_b_reward[1].append(b_sum_of_rewards / graph_update)
-
+            graphs_plots_b_reward[1].append(n_updates)
+            
             a_win = 0
             b_win = 0
             c_win = 0

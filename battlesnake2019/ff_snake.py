@@ -65,6 +65,8 @@ class Policy():
 
         if training:
             self.net.eval()
+        else:
+            self.net.train()
 
         if path != None:
             self.load(path)
