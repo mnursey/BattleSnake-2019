@@ -58,7 +58,7 @@ h = [{
     'loss': -1.0,
     'tie': -0.9,
     'ate': 0.0,
-    'initial': -0.0001,
+    'initial': -0.0002,
     'greedy_attack': 0.0,
     'retreat' : 0.0
     }
@@ -281,6 +281,7 @@ def run():
 
                     #b_move = snake_random.run_ai(state)
                     b_move = ff_b.run_ai_test(state)
+                    #b_move = snake2018.run_ai(state)
 
                     moves.append((b_move, 'B'))
 
@@ -291,6 +292,8 @@ def run():
                     c_move = ff_b.run_ai_test(state)
                     #c_move = snake_random.run_ai(state)
                     #c_move = snake_random.run_ai(state)
+                    #c_move = snake2018.run_ai(state)
+
                     moves.append((c_move, 'C'))
 
                 if snake['id'] == 'D':
@@ -373,7 +376,7 @@ def run():
 
         if a_win > 70:
             path = ff_a.save()
-            ff_b = ff_snake.Policy(batch_size, True, path=path)
+            '''ff_b = ff_snake.Policy(batch_size, True, path=path)'''
             #ff_a.reset_optimizer()
             n_updates += 1
             
