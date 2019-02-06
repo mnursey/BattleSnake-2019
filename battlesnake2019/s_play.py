@@ -43,12 +43,12 @@ n_updates = 0
 #board_sizes = [7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 8, 9, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 14, 15, 16, 17, 18, 19, 19]
 board_sizes = [7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19]
 
-h_index = 2
+h_index = 0
 h = [{
-    'win' : 0.2,
+    'win' : 1.0,
     'loss': -1.0,
     'tie': -0.9,
-    'ate': 0.5,
+    'ate': 0.75,
     'initial': 0.0,
     'greedy_attack': 0.0,
     'retreat' : 0.0
@@ -57,7 +57,7 @@ h = [{
     'win' : 0.2,
     'loss': -1.0,
     'tie': -0.9,    
-    'ate': 0.5,
+    'ate': 0.3,
     'initial': 0.0,
     'greedy_attack': 0.0,
     'retreat' : 0.0
@@ -67,7 +67,7 @@ h = [{
     'loss': -1.0,
     'tie': -0.9,
     'ate': 0.0,
-    'initial': -0.0002,
+    'initial': 0.0,
     'greedy_attack': 0.0,
     'retreat' : 0.0
     }
@@ -154,9 +154,9 @@ def run():
     original_state = load_initial_state()
 
     path = './models/specialmodels/version_4_2.pth'
-    ff_a = ff_snake.Policy(batch_size, training = True, path=path)
+    ff_a = ff_snake.Policy(batch_size, training = True)
     #ff_a.reset_optimizer()                            
-    ff_b = ff_snake.Policy(batch_size, training = False, path=path)   
+    ff_b = ff_snake.Policy(batch_size, training = False)   
     
     while True:
         game_number += 1
@@ -237,8 +237,8 @@ def run():
                 body['y'] = positions[p][1]
 
         # food
-        #r_food = random.randint(3, size - 4)
-        r_food = random.randint(4, size)
+        r_food = random.randint(3, size - 4)
+        #r_food = random.randint(4, size)
 
         for i in range(r_food):
             state['board']['food'].append({'x': 0, 'y': 0})
@@ -289,9 +289,7 @@ def run():
                     state['you'] = snake
                     snakeB = snake
 
-                    #b_move = snake_random.run_ai(state)
                     b_move = ff_b.run_ai_test(state)
-                    #b_move = snake2018.run_ai(state)
 
                     moves.append((b_move, 'B'))
 
@@ -300,9 +298,6 @@ def run():
                     snakeC = snake
 
                     c_move = ff_b.run_ai_test(state)
-                    #c_move = snake_random.run_ai(state)
-                    #c_move = snake_random.run_ai(state)
-                    #c_move = snake2018.run_ai(state)
 
                     moves.append((c_move, 'C'))
 
@@ -310,9 +305,8 @@ def run():
                     state['you'] = snake
                     snakeD = snake
 
-                    #d_move = snake_random.run_ai(state)
                     d_move = ff_b.run_ai_test(state)
-                    #d_move = snake2018.run_ai(state)
+
                     moves.append((d_move, 'D'))
 
             state = engine.Run(state, moves) 
@@ -357,7 +351,9 @@ def run():
             if a_ate:
                 a_reward += h[h_index]['ate']
 
-            if a_found and not b_found and not c_found and not d_found:
+            long_victory = a_length > 8 or h_index > 0
+           
+            if a_found and not b_found and not c_found and not d_found and long_victory:
                 a_win += 1
                 a_reward += h[h_index]['win']
                 done = True
@@ -373,7 +369,6 @@ def run():
             # set rewards
             ff_a.set_reward(a_reward)
             a_sum_of_rewards += a_reward
-            #b_sum_of_rewards += b_reward
 
             _global.board_json_list = state
             RunGraph()
@@ -384,12 +379,6 @@ def run():
 
         sum_of_game_length += state['turn']
 
-        if a_win > 70:
-            path = ff_a.save()
-            '''ff_b = ff_snake.Policy(batch_size, True, path=path)'''
-            #ff_a.reset_optimizer()
-            n_updates += 1
-            
         if game_number % graph_update == 0:
 
             print('Sim: ' + str(a_win) + '/' + str(n_updates))
@@ -416,11 +405,13 @@ def run():
             n_updates += 1
             a_win = 0
             
-            '''if n_updates > 2:
-                h_index = 1'''
+            if n_updates == 3:
+                h_index += 1
+
+            if n_updates == 5:
+                h_index += 1
                 
         if game_number % graph_update == 0:
-
             a_win = 0
             b_win = 0
             c_win = 0
